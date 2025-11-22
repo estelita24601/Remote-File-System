@@ -124,8 +124,8 @@ int main(int argc, char* argv[]) {
             printHelp();
             exit(1);
         }
-        // remote path is optional and defaults to same as local path
         if (remote_path == NULL) {
+            // default remote path is the same as the local path
             remote_path = local_path;
         }
     } else {
@@ -136,11 +136,14 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
 
-        // for GET the local path is optional and defaults to the same as the remote path
-        if (equals(command, GET)) {
-            if (local_path == NULL) {
-                local_path = remote_path;
-            }
+        // local path optional for GET
+        if (equals(command, GET) && local_path == NULL) {
+            // default local path is the same as the remote
+            local_path = remote_path;
+        }
+        // local path not needed for RM and LS
+        else {
+            local_path = "";
         }
     }
 
