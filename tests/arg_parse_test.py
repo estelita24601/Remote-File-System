@@ -1,30 +1,26 @@
-"""
-    testExpectSuccess(
-        "./rfs_test WRITE --local example_source.txt --remote example_destination.txt > output/write_local_remote.txt");
-
-    // happy path received local and uses default remote
-    testExpectSuccess("./rfs_test WRITE --local example_source.txt > output/write_local_only.txt");
-
-    // edge case doesn't receive local path
-    testExpectFailure("./rfs_test WRITE --remote example_destination.txt");
-
-    // edge case doesn't receive local or remote path
-    testExpectFailure("./rfs_test WRITE");
-"""
 import subprocess
-from typing import List,Tuple
+from typing import List, Tuple
 
+# name of executable
 PROGRAM = "rfs_test"
+
+# commands
 WRITE = "WRITE"
 GET = "GET"
 RM = "RM"
 LS = "LS"
+
+# flags
 LOCAL = "--local"
-LOCAL_PATH = "local_file.txt"
 REMOTE = "--remote"
+
+# arg values for the flags
+LOCAL_PATH = "local_file.txt"
 REMOTE_PATH = "remote_file.txt"
 
+# what the executable should print out
 OUTPUT_FORMAT = "COMMAND = %s\nLOCAL_PATH = %s\nREMOTE_PATH = %s\n"
+
 
 def run(cmd: List[str]) -> Tuple[bool, str]:
     """runs the terminal command and returns the success of that command along with any output
@@ -38,10 +34,11 @@ def run(cmd: List[str]) -> Tuple[bool, str]:
 
     result = subprocess.run(cmd, capture_output=True, text=True)
 
-    if result.returncode !=0:
+    if result.returncode != 0:
         return False, result.stderr.strip()
     else:
         return True, result.stdout.strip()
+
 
 def test_expect_ok(cmd: List[str], expected_out: str) -> bool:
     """_summary_
@@ -55,8 +52,10 @@ def test_expect_ok(cmd: List[str], expected_out: str) -> bool:
     """
     ok, output = run(cmd)
     assert ok, f"Expected success but failed: {cmd}\nOutput:\n{output}"
-    assert output.strip() == expected_out.strip(), f"Incorrect output for: {cmd}"
+    assert output.strip() == expected_out.strip(
+    ), f"{cmd}\nexpected:\n{expected_out}\nactual:\n{output}"
     return True
+
 
 def test_expect_not_ok(cmd: List[str]) -> bool:
     """_summary_
@@ -71,8 +70,10 @@ def test_expect_not_ok(cmd: List[str]) -> bool:
     assert not ok, f"Expected error but succeeded: {cmd}\nOutput:\n{output}"
     return True
 
+
 def cmd(*args) -> List[str]:
-    return ["./"+ PROGRAM, *args]
+    return ["./" + PROGRAM, *args]
+
 
 def test_WRITE():
     def write_cmd(*args) -> List[str]:
@@ -91,10 +92,12 @@ def test_WRITE():
     # gives local and remote in either order
     expected = OUTPUT_FORMAT % (WRITE, LOCAL_PATH, REMOTE_PATH)
     test_expect_ok(write_cmd(LOCAL, LOCAL_PATH, REMOTE, REMOTE_PATH), expected)
-    test_expect_ok(write_cmd(REMOTE, REMOTE_PATH, LOCAL, LOCAL_PATH, ), expected)
+    test_expect_ok(write_cmd(REMOTE, REMOTE_PATH,
+                             LOCAL, LOCAL_PATH, ), expected)
+
 
 def test_GET():
-    def get_cmd(*args)-> List[str]:
+    def get_cmd(*args) -> List[str]:
         return cmd(GET, *args)
 
     # didnt' give local OR remote -> error
@@ -112,8 +115,9 @@ def test_GET():
     # only gives local -> error
     test_expect_not_ok(get_cmd(LOCAL, LOCAL_PATH))
 
+
 def test_RM():
-    def rm_cmd(*args)-> List[str]:
+    def rm_cmd(*args) -> List[str]:
         return cmd(RM, *args)
 
     # didn't give local OR remote -> error
@@ -125,15 +129,16 @@ def test_RM():
 
     # gives the remote and local -> ignore the local
     test_expect_ok(rm_cmd(REMOTE, REMOTE_PATH, LOCAL, LOCAL_PATH), expected)
-    test_expect_ok(rm_cmd(LOCAL, LOCAL_PATH,REMOTE, REMOTE_PATH), expected)
+    test_expect_ok(rm_cmd(LOCAL, LOCAL_PATH, REMOTE, REMOTE_PATH), expected)
 
     # only gives local -> error
     test_expect_not_ok(rm_cmd(LOCAL, LOCAL_PATH))
 
-def test_LS():
-    pass # if I implement ls then write these tests out
 
-# all of these should fail
+def test_LS():
+    pass  # if I implement ls then write these tests out
+
+
 def test_invalid_args():
     # invalid command with args
     test_expect_not_ok(cmd("INVALID", LOCAL, LOCAL_PATH, REMOTE, REMOTE_PATH))
@@ -145,27 +150,33 @@ def test_invalid_args():
     test_expect_not_ok(cmd())
 
     # valid command but invalid flag
-    test_expect_not_ok(cmd(WRITE, "--hello", REMOTE_PATH))
-
-    # valid command with valid flag AND invalid flag
-    test_expect_not_ok(cmd(WRITE, LOCAL, LOCAL_PATH, "--hello", REMOTE_PATH))
+    test_expect_not_ok(cmd(WRITE, "--hello", LOCAL_PATH))
 
     # valid command and flag but nothing following the flag
-    test_expect_not_ok(cmd(WRITE, LOCAL)) # index out of bounds
-    test_expect_not_ok(cmd(WRITE, LOCAL, LOCAL_PATH, REMOTE)) # index out of bounds
-    test_expect_not_ok(cmd(WRITE, LOCAL, REMOTE)) # flag following flag
-    test_expect_not_ok(cmd(WRITE, REMOTE, LOCAL)) # flag following flag
+    test_expect_not_ok(cmd(WRITE, LOCAL))  # index out of bounds
+    test_expect_not_ok(cmd(WRITE, LOCAL, LOCAL_PATH, REMOTE)
+                       )  # index out of bounds
+    test_expect_not_ok(cmd(WRITE, LOCAL, REMOTE))  # flag following flag
+    test_expect_not_ok(cmd(WRITE, REMOTE, LOCAL))  # flag following flag
 
     # valid command but theres no flag
     test_expect_not_ok(cmd(WRITE, LOCAL_PATH))
 
+
 def main():
     # initial setup, create the custom executable called `rfs_test`
-    make_cmd = f"gcc -Wall -DTESTING ../src/main.c -o {PROGRAM}".split()
-    result = subprocess.run(make_cmd)
+    result = subprocess.run(["make", "test_args"])
+
+    # make sure it worked
+    # fixme: main.c includes my_utils but linker can't find it
     if result.returncode != 0:
         print("ERROR creating test version of executable")
         return
+
+    # edge case: ignore the invalid flag
+    expected = OUTPUT_FORMAT % (WRITE, LOCAL_PATH, LOCAL_PATH)
+    test_expect_ok(cmd(WRITE, LOCAL, LOCAL_PATH,
+                       "--hello", REMOTE_PATH), expected)
 
     test_invalid_args()
 
