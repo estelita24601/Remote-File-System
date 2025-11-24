@@ -50,6 +50,8 @@ def test_expect_ok(cmd: List[str], expected_out: str) -> bool:
     Returns:
         bool: _description_
     """
+    print(f"testing {cmd}")
+
     ok, output = run(cmd)
     assert ok, f"Expected success but failed: {cmd}\nOutput:\n{output}"
     assert output.strip() == expected_out.strip(
@@ -66,6 +68,8 @@ def test_expect_not_ok(cmd: List[str]) -> bool:
     Returns:
         bool: _description_
     """
+    print(f"testing {cmd}")
+
     ok, output = run(cmd)
     assert not ok, f"Expected error but succeeded: {cmd}\nOutput:\n{output}"
     return True
@@ -167,8 +171,7 @@ def main():
     # initial setup, create the custom executable called `rfs_test`
     result = subprocess.run(["make", "test_args"])
 
-    # make sure it worked
-    # fixme: main.c includes my_utils but linker can't find it
+    # make sure we created exectuable for the test
     if result.returncode != 0:
         print("ERROR creating test version of executable")
         return
