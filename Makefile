@@ -1,10 +1,10 @@
 CC = gcc
 CFLAGS = -Wall
 
-all: src/main.c
+all: client/main.c
 	$(CC) $(CFLAGS) $^ -o rfs
 
-test_args: src/main.c src/my_utils.c
+test_args: client/arg_parser.c client/my_utils.c
 	$(CC) $(CFLAGS) -DTEST_ARGS $^ -o rfs_test
 
 clean:

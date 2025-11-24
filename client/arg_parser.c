@@ -5,25 +5,10 @@
  * @date 2025-11-21
  *
  */
+#include "arg_parser.h"
 
-#include <ctype.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "my_utils.h"
-
-#define WRITE "WRITE"
-#define GET "GET"
-#define REMOVE "RM"
-#define LIST_HISTORY "LS"
-
-char* COMMANDS[] = {WRITE, GET, REMOVE, LIST_HISTORY};
-int NUM_COMMANDS = 4;
-
-char* REMOTE_FLAG = "--remote";
-char* LOCAL_FLAG = "--local";
+const char* REMOTE_FLAG = "--remote";
+const char* LOCAL_FLAG = "--local";
 
 void printHelp() {
     printf("Usage:\n");
@@ -77,7 +62,7 @@ char* getCommand(int argc, char* argv[]) {
  * @param flag - path type we're looking for, "--local" or "--remote"
  * @return char* - the path given after the flag
  */
-char* getPathArg(int argc, char* argv[], char* flag) {
+char* getPathArg(int argc, char* argv[], const char* flag) {
     // look at all the args after the command
     for (int i = 1; i < argc; i++) {
         char* curr_arg = argv[i];
@@ -105,7 +90,53 @@ char* getPathArg(int argc, char* argv[], char* flag) {
     return NULL;  // never found the flag in the args
 }
 
-int main(int argc, char* argv[]) {
+/**
+ * @brief Create a command_t object
+ *
+ * @param type
+ * @param local
+ * @param remote
+ * @return command_t*
+ */
+command_t* createCommandStruct(const char* type, const char* local, const char* remote) {
+    command_t* cmd = malloc(sizeof(command_t));
+    if (cmd == NULL) {
+        printf("ERROR: unable to allocate memory for command_t struct");
+        exit(1);
+    }
+
+    cmd->c_type = malloc(sizeof(char) * (strlen(type) + 1));
+    strcpy(cmd->c_type, type);
+    cmd->local_path = malloc(sizeof(char) * (strlen(local) + 1));
+    strcpy(cmd->local_path, local);
+    cmd->remote_path = malloc(sizeof(char) * (strlen(remote) + 1));
+    strcpy(cmd->remote_path, remote);
+
+    return cmd;
+}
+
+/**
+ * @brief
+ *
+ * @param cmd
+ */
+void freeCommandStruct(command_t* cmd) {
+    if (cmd == NULL) {
+        return;
+    }
+    free(cmd->c_type);
+    free(cmd->local_path);
+    free(cmd->remote_path);
+}
+
+/**
+ * @brief
+ *
+ * @param argc
+ * @param argv
+ * @return command_t*
+ */
+command_t* argParser(int argc, char* argv[]) {
     // get command from the args
     char* command = getCommand(argc, argv);
     if (command == NULL) {
@@ -146,9 +177,22 @@ int main(int argc, char* argv[]) {
             local_path = "";
         }
     }
+    return createCommandStruct(command, local_path, remote_path);
+}
 
 #ifdef TEST_ARGS
+int main(int argc, char* argv[]) {
+    command_t* cmd = argParser(argc, argv);
+
+    char* command = cmd->c_type;
+    char* local_path = cmd->local_path;
+    char* remote_path = cmd->remote_path;
+
     printf("COMMAND = %s\nLOCAL_PATH = %s\nREMOTE_PATH = %s\n", command, local_path, remote_path);
+
+    freeCommandStruct(cmd);
+
     exit(0);
-#endif
 }
+
+#endif
