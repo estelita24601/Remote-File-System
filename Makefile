@@ -4,7 +4,7 @@ CFLAGS = -Wall
 all: client/main.c
 	$(CC) $(CFLAGS) $^ -o rfs
 
-test_args: client/arg_parser.c client/my_utils.c
+test_args: client/arg_parser.c command.c
 	$(CC) $(CFLAGS) -DTEST_ARGS $^ -o rfs_test
 
 clean:

@@ -1,8 +1,11 @@
 /**
- * @file main.c
- * @author Estelita Chen
+ * @file arg_parser.c
+ * @author your name (you@domain.com)
  * @brief
- * @date 2025-11-21
+ * @version 0.1
+ * @date 2025-11-24
+ *
+ * @copyright Copyright (c) 2025
  *
  */
 #include "arg_parser.h"
@@ -33,25 +36,17 @@ void printHelp() {
  *
  * @param argc - number of args
  * @param argv - array of arg strings
- * @return char* - the command found or NULL if unable to find valid command
+ * @return command_type - enum for the type of command found or UNKNOWN if unable to find valid command
  */
-char* getCommand(int argc, char* argv[]) {
+command_type getCommandType(int argc, char* argv[]) {
     // make sure there are enough args
     if (argc < 2) {
-        return NULL;
+        return UNKNOWN;
     }
 
     // command should be 1st arg
     char* cmd_string = argv[1];
-
-    // make sure its a valid command
-    for (int i = 0; i < NUM_COMMANDS; i++) {
-        if (equals(cmd_string, COMMANDS[i])) {
-            return COMMANDS[i];
-        }
-    }
-
-    return NULL;  // default if command is invalid
+    return strToCommandType(cmd_string);
 }
 
 /**
@@ -98,17 +93,18 @@ char* getPathArg(int argc, char* argv[], const char* flag) {
  * @param remote
  * @return command_t*
  */
-command_t* createCommandStruct(const char* type, const char* local, const char* remote) {
+command_t* createCommandStruct(command_type type, const char* local, const char* remote) {
     command_t* cmd = malloc(sizeof(command_t));
     if (cmd == NULL) {
         printf("ERROR: unable to allocate memory for command_t struct");
         exit(1);
     }
 
-    cmd->c_type = malloc(sizeof(char) * (strlen(type) + 1));
-    strcpy(cmd->c_type, type);
+    cmd->c_type = type;
+
     cmd->local_path = malloc(sizeof(char) * (strlen(local) + 1));
     strcpy(cmd->local_path, local);
+
     cmd->remote_path = malloc(sizeof(char) * (strlen(remote) + 1));
     strcpy(cmd->remote_path, remote);
 
@@ -124,7 +120,6 @@ void freeCommandStruct(command_t* cmd) {
     if (cmd == NULL) {
         return;
     }
-    free(cmd->c_type);
     free(cmd->local_path);
     free(cmd->remote_path);
 }
@@ -138,8 +133,8 @@ void freeCommandStruct(command_t* cmd) {
  */
 command_t* argParser(int argc, char* argv[]) {
     // get command from the args
-    char* command = getCommand(argc, argv);
-    if (command == NULL) {
+    command_type commandType = getCommandType(argc, argv);
+    if (commandType == UNKNOWN) {
         printf("ERROR: unable to find a valid command in the args\n");
         printHelp();
         exit(1);
@@ -148,7 +143,7 @@ command_t* argParser(int argc, char* argv[]) {
     // get filepaths from the args
     char* local_path = getPathArg(argc, argv, LOCAL_FLAG);
     char* remote_path = getPathArg(argc, argv, REMOTE_FLAG);
-    if (equals(command, WRITE)) {
+    if (commandType == WRITE) {
         // local path required
         if (local_path == NULL) {
             printf("ERROR: unable to find local file path in args\n");
@@ -167,7 +162,7 @@ command_t* argParser(int argc, char* argv[]) {
             exit(1);
         }
 
-        if (equals(command, GET)) {
+        if (commandType == GET) {
             if (local_path == NULL) {
                 // default local path is the same as the remote
                 local_path = remote_path;
@@ -177,14 +172,14 @@ command_t* argParser(int argc, char* argv[]) {
             local_path = "";
         }
     }
-    return createCommandStruct(command, local_path, remote_path);
+    return createCommandStruct(commandType, local_path, remote_path);
 }
 
 #ifdef TEST_ARGS
 int main(int argc, char* argv[]) {
     command_t* cmd = argParser(argc, argv);
 
-    char* command = cmd->c_type;
+    const char* command = COMMAND_STRINGS[cmd->c_type];
     char* local_path = cmd->local_path;
     char* remote_path = cmd->remote_path;
 
@@ -194,5 +189,4 @@ int main(int argc, char* argv[]) {
 
     exit(0);
 }
-
 #endif
