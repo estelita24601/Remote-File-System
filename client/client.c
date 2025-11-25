@@ -5,69 +5,92 @@
  *   https://www.educative.io/answers/how-to-implement-tcp-sockets-in-c
  */
 
+/**
+ * @file client.c
+ * @author your name (you@domain.com)
+ * @brief
+ * @version 0.1
+ * @date 2025-11-24
+ *
+ * based on the code from Lesson 93.202 that was adapted from
+ *https://www.educative.io/answers/how-to-implement-tcp-sockets-in-c
+ *
+ */
+
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "config.h"
+#include "../command.h"
+#include "../config.h"
+#include "arg_parser.h"
 
-int main(void) {
-    int socket_desc;
-    struct sockaddr_in server_addr;
-    char server_message[2000], client_message[2000];
-
-    // Clean buffers:
-    memset(server_message, '\0', sizeof(server_message));
-    memset(client_message, '\0', sizeof(client_message));
-
-    // Create socket:
-    socket_desc = socket(AF_INET, SOCK_STREAM, 0);
-
-    if (socket_desc < 0) {
-        printf("Unable to create socket\n");
-        close(socket_desc);
+int main(int argc, char* argv[]) {
+    command_t* command = argParser(argc, argv);
+    if (command == NULL) {
+        printf("ERROR: unable to parse valid command from the args!\n");
         return -1;
     }
 
-    printf("Socket created successfully\n");
-
-    // Set port and IP the same as server-side:
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(2000);
-    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-    // Send connection request to server:
-    if (connect(socket_desc, (struct sockaddr*) &server_addr, sizeof(server_addr)) < 0) {
-        printf("Unable to connect\n");
-        close(socket_desc);
-        return -1;
-    }
-    printf("Connected with server successfully\n");
-
-    // Get input from the user:
-    printf("Enter message: ");
-    gets(client_message);
-
-    // Send the message to server:
-    if (send(socket_desc, client_message, strlen(client_message), 0) < 0) {
-        printf("Unable to send message\n");
-        close(socket_desc);
+    // 1. create the socket
+    int socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
+    if (socket_descriptor < 0) {
+        printf("ERROR: unable to create socket\n\n");
+        close(socket_descriptor);
         return -1;
     }
 
-    // Receive the server's response:
-    if (recv(socket_desc, server_message, sizeof(server_message), 0) < 0) {
-        printf("Error while receiving server's msg\n");
-        close(socket_desc);
+    // 2. set up the struct for the server address
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    // use server port number and ip address defined in config.h
+    server_address.sin_port = htons(PORT);
+    server_address.sin_addr.s_addr = inet_addr(IP_ADDRESS);
+
+    // 3. try to connect to the server
+    struct sockaddr* socket_address = (struct sockaddr*) &server_address;
+    int status = connect(socket_descriptor, socket_address, sizeof(server_address));
+    if (status < 0) {
+        printf("ERROR: unable to connect to server\n");
+        close(socket_descriptor);
         return -1;
     }
 
-    printf("Server's response: %s\n", server_message);
+    // idea:
+    // helper functions that combine 4&5 for each command type
+    //      especially WRITE command needs to get file contents into the buffer
+    // helper functions that combine step 6&7 for each command type
+    //      especially GET command needs to get file contents into the buffer
 
-    // Close the socket:
-    close(socket_desc);
+    // 4. compose message for the server
+    char buffer[MAX_BUFF_SIZE];
+    memset(buffer, '\0', sizeof(buffer));
+    // todo: actually put command struct in here
 
+    // 5. send message to the server
+    status = send(socket_descriptor, buffer, sizeof(buffer), 0);
+    if (status < 0) {
+        printf("ERROR: unable to send message to server\n");
+        close(socket_descriptor);
+        return -1;
+    }
+
+    // 6. receive server response
+    memset(buffer, '\0', sizeof(buffer));
+    status = recv(socket_descriptor, buffer, sizeof(buffer), 0);
+    if (status < 0) {
+        printf("ERROR: unable to receive response from server\n");
+        close(socket_descriptor);
+        return -1;
+    }
+
+    // 7. handle server response
+    // todo
+
+    // 8. close socket and end program
+    close(socket_descriptor);
+    freeCommandStruct(command);
     return 0;
 }
