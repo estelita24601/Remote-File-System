@@ -85,44 +85,7 @@ char* getPathArg(int argc, char* argv[], const char* flag) {
     return NULL;  // never found the flag in the args
 }
 
-/**
- * @brief Create a command_t object
- *
- * @param type
- * @param local
- * @param remote
- * @return command_t*
- */
-command_t* createCommandStruct(command_type type, const char* local, const char* remote) {
-    command_t* cmd = malloc(sizeof(command_t));
-    if (cmd == NULL) {
-        printf("ERROR: unable to allocate memory for command_t struct");
-        exit(1);
-    }
 
-    cmd->c_type = type;
-
-    cmd->local_path = malloc(sizeof(char) * (strlen(local) + 1));
-    strcpy(cmd->local_path, local);
-
-    cmd->remote_path = malloc(sizeof(char) * (strlen(remote) + 1));
-    strcpy(cmd->remote_path, remote);
-
-    return cmd;
-}
-
-/**
- * @brief
- *
- * @param cmd
- */
-void freeCommandStruct(command_t* cmd) {
-    if (cmd == NULL) {
-        return;
-    }
-    free(cmd->local_path);
-    free(cmd->remote_path);
-}
 
 /**
  * @brief

@@ -1,10 +1,3 @@
-/*
- * client.c -- TCP Socket Client
- *
- * adapted from:
- *   https://www.educative.io/answers/how-to-implement-tcp-sockets-in-c
- */
-
 /**
  * @file client.c
  * @author your name (you@domain.com)
@@ -26,6 +19,34 @@
 #include "../command.h"
 #include "../config.h"
 #include "arg_parser.h"
+
+void sendWRITE(command_t* command, int socket_descriptor) {
+    // 1. try to open file from local_path
+    // 2. create buffer
+    // 3. inside of a loop send contents of that file to the server
+    //      fill buffer with file contents
+    //      send buffer to server
+    //      if there is more file data to send then repeat
+}
+
+void sendCommand(command_t* command, int socket_descriptor) {
+    // no matter what send the command to the server
+    char buffer[MAX_BUFF_SIZE];
+    memset(buffer, '\0', sizeof(buffer));
+
+    status = send(socket_descriptor, buffer, sizeof(buffer), 0);
+    if (status < 0) {
+        printf("ERROR: unable to send message to server\n");
+        close(socket_descriptor);
+        return -1;
+    }
+
+    // if command is WRITE then also send file contents
+    if (command->c_type == WRITE) {
+        sendWRITE(command, socket_descriptor);
+        return;
+    }
+}
 
 int main(int argc, char* argv[]) {
     command_t* command = argParser(argc, argv);
@@ -63,19 +84,6 @@ int main(int argc, char* argv[]) {
     //      especially WRITE command needs to get file contents into the buffer
     // helper functions that combine step 6&7 for each command type
     //      especially GET command needs to get file contents into the buffer
-
-    // 4. compose message for the server
-    char buffer[MAX_BUFF_SIZE];
-    memset(buffer, '\0', sizeof(buffer));
-    // todo: actually put command struct in here
-
-    // 5. send message to the server
-    status = send(socket_descriptor, buffer, sizeof(buffer), 0);
-    if (status < 0) {
-        printf("ERROR: unable to send message to server\n");
-        close(socket_descriptor);
-        return -1;
-    }
 
     // 6. receive server response
     memset(buffer, '\0', sizeof(buffer));

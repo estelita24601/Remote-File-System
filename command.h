@@ -29,4 +29,8 @@ bool equals(const char* a, const char* b);
 
 command_type strToCommandType(const char* str);
 
+command_t* createCommandStruct(command_type type, const char* local, const char* remote);
+
+void freeCommandStruct(command_t* cmd);
+
 #endif
