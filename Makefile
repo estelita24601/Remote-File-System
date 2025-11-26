@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -Wall
 
-client: client/client.c client/arg_parser.c command.c
-	$(CC) $(CFLAGS) $^ -o rfs
+client: client/client.c client/arg_parser.c command.c protocol.c
+	$(CC) $(CFLAGS) $^ -o rfs -lm
 
 server: server/server.c
 	$(CC) $(CFLAGS) $^ -o rfs_server

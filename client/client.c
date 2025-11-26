@@ -18,34 +18,72 @@
 
 #include "../command.h"
 #include "../config.h"
+#include "../protocol.h"
 #include "arg_parser.h"
 
-void sendWRITE(command_t* command, int socket_descriptor) {
-    // 1. try to open file from local_path
-    // 2. create buffer
-    // 3. inside of a loop send contents of that file to the server
-    //      fill buffer with file contents
-    //      send buffer to server
-    //      if there is more file data to send then repeat
-}
+void sendFileContents(const char* file_path, const long file_size, const int socket_descriptor) {
+    // try to open file from local_path
+    FILE* local_file = fopen(file_path, "rb");
+    if (local_file == NULL) {
+        printf("ERROR:unable to open local file %s\n", file_path);
+        exit(-1);
+    }
 
-void sendCommand(command_t* command, int socket_descriptor) {
-    // no matter what send the command to the server
+    // create buffer
     char buffer[MAX_BUFF_SIZE];
     memset(buffer, '\0', sizeof(buffer));
 
-    status = send(socket_descriptor, buffer, sizeof(buffer), 0);
+    debug("sendFileContents()\n");
+    // keep on sending data to server until we reach EOF
+    while (!feof(local_file)) {
+        // fixme: keep on appending to buffer until its full, right now fgets stops at \n
+        debug("\t-\n");
+
+        // location in file before writing to buffer
+        long curr = ftell(local_file);
+
+        // put file contents into the buffer
+        fgets(buffer, MAX_BUFF_SIZE, local_file);
+
+        // determine how much of the buffer was filled
+        int buff_size = ftell(local_file) - curr;
+
+        // send to the server
+        int status = send(socket_descriptor, buffer, buff_size, 0);
+        if (status < 0) {
+            printf("ERROR: unable to send file contents to server\n");
+            close(socket_descriptor);
+            fclose(local_file);
+            exit(-1);
+        }
+
+        // reset buffer just in case
+        memset(buffer, '\0', sizeof(buffer));
+    }
+
+    fclose(local_file);
+}
+
+void sendRequest(command_t* command, const int socket_descriptor) {
+    // no matter what send the command to the server
+    request_t* req = createRequest(command);
+
+    char* buffer = serializeRequest(req);
+    debug("serializeRequest() -> %s\n", buffer);
+
+    int status = send(socket_descriptor, buffer, strlen(buffer), 0);
     if (status < 0) {
         printf("ERROR: unable to send message to server\n");
         close(socket_descriptor);
-        return -1;
+        exit(-1);
     }
 
     // if command is WRITE then also send file contents
     if (command->c_type == WRITE) {
-        sendWRITE(command, socket_descriptor);
-        return;
+        sendFileContents(command->local_path, req->data_len, socket_descriptor);
     }
+
+    freeRequest(req);
 }
 
 int main(int argc, char* argv[]) {
@@ -55,7 +93,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    // 1. create the socket
+    // create the socket
     int socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_descriptor < 0) {
         printf("ERROR: unable to create socket\n\n");
@@ -63,14 +101,15 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    // 2. set up the struct for the server address
+    // set up the struct for the server address
     struct sockaddr_in server_address;
     server_address.sin_family = AF_INET;
+
     // use server port number and ip address defined in config.h
     server_address.sin_port = htons(PORT);
     server_address.sin_addr.s_addr = inet_addr(IP_ADDRESS);
 
-    // 3. try to connect to the server
+    // try to connect to the server
     struct sockaddr* socket_address = (struct sockaddr*) &server_address;
     int status = connect(socket_descriptor, socket_address, sizeof(server_address));
     if (status < 0) {
@@ -79,25 +118,20 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    // idea:
-    // helper functions that combine 4&5 for each command type
-    //      especially WRITE command needs to get file contents into the buffer
-    // helper functions that combine step 6&7 for each command type
-    //      especially GET command needs to get file contents into the buffer
+    sendRequest(command, socket_descriptor);
 
-    // 6. receive server response
-    memset(buffer, '\0', sizeof(buffer));
-    status = recv(socket_descriptor, buffer, sizeof(buffer), 0);
-    if (status < 0) {
-        printf("ERROR: unable to receive response from server\n");
-        close(socket_descriptor);
-        return -1;
-    }
+    // receive server response
+    // status = recv(socket_descriptor, buffer, sizeof(buffer), 0);
+    // if (status < 0) {
+    //     printf("ERROR: unable to receive response from server\n");
+    //     close(socket_descriptor);
+    //     return -1;
+    // }
 
-    // 7. handle server response
+    // handle server response
     // todo
 
-    // 8. close socket and end program
+    // close socket and end program
     close(socket_descriptor);
     freeCommandStruct(command);
     return 0;

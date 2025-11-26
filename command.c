@@ -66,11 +66,9 @@ command_t* createCommandStruct(command_type type, const char* local, const char*
 
     cmd->c_type = type;
 
-    cmd->local_path = malloc(sizeof(char) * (strlen(local) + 1));
-    strcpy(cmd->local_path, local);
+    cmd->local_path = strdup(local);
 
-    cmd->remote_path = malloc(sizeof(char) * (strlen(remote) + 1));
-    strcpy(cmd->remote_path, remote);
+    cmd->remote_path = strdup(remote);
 
     return cmd;
 }

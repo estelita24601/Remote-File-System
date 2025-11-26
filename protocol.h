@@ -1,37 +1,51 @@
+/**
+ * @file protocol.h
+ * @author your name (you@domain.com)
+ * @brief
+ * @version 0.1
+ * @date 2025-11-25
+ *
+ * @copyright Copyright (c) 2025
+ *
+ */
+
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
 #include <stdbool.h>
+#include <stddef.h>
+
 #include "command.h"
 #include "config.h"
 
-typedef struct request{
+extern const char* requestFormat;
+
+typedef struct request {
     command_type command;
     char* remote_path;
-    size_t data_len;
-}request_t;
+    long data_len;
+} request_t;
 
-typedef struct response{
-    bool status; //was there an error or failure?
+typedef struct response {
+    bool status;  // was there an error or failure?
     char* message;
-    size_t data_len;
-}response_t;
+    long data_len;
+} response_t;
 
-request_t* createRequest(command_type command, const char* file_path);
+request_t* createRequest(command_t* command);
 
 char* serializeRequest(request_t* req);
 
-request_t* deSerializeRequest(char* buffer);
+request_t* deSerializeRequest(const char* buffer);
 
 void freeRequest(request_t* req);
 
-response_t* createResponse(bool success, char* message, int size);
+response_t* createResponse(bool success, const char* message, long size);
 
 char* serializeResponse(response_t* res);
 
-response_t* deSerializeResponse(char* buffer);
+response_t* deSerializeResponse(const char* buffer);
 
 void freeResponse(response_t* res);
-
 
 #endif
