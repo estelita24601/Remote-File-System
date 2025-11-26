@@ -36,26 +36,19 @@ void sendFileContents(const char* file_path, const long file_size, const int soc
     debug("sendFileContents()\n");
     // keep on sending data to server until we reach EOF
     while (!feof(local_file)) {
-        // fixme: keep on appending to buffer until its full, right now fgets stops at \n
-        debug("\t-\n");
-
-        // location in file before writing to buffer
-        long curr = ftell(local_file);
-
         // put file contents into the buffer
-        fgets(buffer, MAX_BUFF_SIZE, local_file);
-
-        // determine how much of the buffer was filled
-        int buff_size = ftell(local_file) - curr;
+        size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, local_file);
 
         // send to the server
-        int status = send(socket_descriptor, buffer, buff_size, 0);
+        int status = send(socket_descriptor, buffer, buffer_fill, 0);
         if (status < 0) {
             printf("ERROR: unable to send file contents to server\n");
             close(socket_descriptor);
             fclose(local_file);
             exit(-1);
         }
+
+        debug("----\n%s\n", buffer);
 
         // reset buffer just in case
         memset(buffer, '\0', sizeof(buffer));
