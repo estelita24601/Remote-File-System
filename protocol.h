@@ -19,6 +19,7 @@
 #include "config.h"
 
 extern const char* requestFormat;
+extern const char* responseFormat;
 
 typedef struct request {
     command_type command;
@@ -33,6 +34,8 @@ typedef struct response {
 } response_t;
 
 request_t* createRequest(command_t* command);
+
+request_t* createRequestFromParts(command_type type, const char* path, long data_length);
 
 char* serializeRequest(request_t* req);
 

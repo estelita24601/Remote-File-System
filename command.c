@@ -41,11 +41,25 @@ bool equals(const char* a, const char* b) {
  * @return command_type
  */
 command_type strToCommandType(const char* str) {
+    // first see if it matches one of the strings from the list
     for (int i = 0; i < NUM_COMMANDS; i++) {
         if (equals(COMMAND_STRINGS[i], str)) {
             return i;
         }
     }
+
+    // then see if its a number 0-3
+    // can't just use atoi() because it returns 0 by default
+    if (equals(str, "0")) {
+        return 0;
+    } else if (equals(str, "1")) {
+        return 1;
+    } else if (equals(str, "2")) {
+        return 2;
+    } else if (equals(str, "3")) {
+        return 3;
+    }
+
     return UNKNOWN;
 }
 
