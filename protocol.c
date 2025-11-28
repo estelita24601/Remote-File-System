@@ -16,26 +16,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "config.h"
-
-#define DEBUG_MODE
-
 const char* requestFormat = "%s,%ld,%s";   // command,data_len,remote_path
 const char* responseFormat = "%d,%ld,%s";  // status,data_len,message
 
 request_t* createRequest(command_t* command) {
     if (command == NULL) {
-        printf("ERROR: tried to create a request with a NULL command\n");
-        exit(-1);
+        fprintf(stderr, "WARNING: tried to create a request with a NULL command\n");
+        return NULL;
     } else if (command->c_type == UNKNOWN || command->c_type > NUM_COMMANDS) {
-        printf("ERROR: tried to create a request with an unknown command type\n");
-        exit(-1);
+        fprintf(stderr, "WARNING: tried to create a request with an unknown command type\n");
+        return NULL;
     }
 
     request_t* req = malloc(sizeof(request_t));
     if (req == NULL) {
-        printf("ERROR: unable to allocate memory for request struct\n");
-        exit(-1);
+        fprintf(stderr, "ERROR: unable to allocate memory for request struct\n");
+        return NULL;
     }
 
     req->command = command->c_type;
@@ -46,8 +42,10 @@ request_t* createRequest(command_t* command) {
         // try to open the file
         FILE* local_file = fopen(command->local_path, "rb");
         if (local_file == NULL) {
-            printf("ERROR: unable to open local file %s\n", command->local_path);
-            exit(-1);
+            fprintf(stderr, "ERROR: unable to open local file %s\n", command->local_path);
+            free(req->remote_path);
+            free(req);
+            return NULL;
         }
 
         // seek to EOF to get num characters in the file
@@ -62,20 +60,20 @@ request_t* createRequest(command_t* command) {
 request_t* createRequestFromParts(command_type type, const char* path, long data_length) {
     // make sure values are valid
     if (type == UNKNOWN || type > NUM_COMMANDS) {
-        printf("WARNING: tried to create request object with UNKNOWN command type\n");
+        fprintf(stderr, "WARNING: tried to create request object with UNKNOWN command type\n");
         return NULL;
     } else if (strlen(path) == 0) {
-        printf("WARNING: tried to create request object with non-existent file path\n");
+        fprintf(stderr, "WARNING: tried to create request object with non-existent file path\n");
         return NULL;
     } else if (data_length < 0) {
-        printf("WARNING: tried to create request object with negative data length\n");
+        fprintf(stderr, "WARNING: tried to create request object with negative data length\n");
         return NULL;
     }
 
     request_t* req = malloc(sizeof(request_t));
     if (req == NULL) {
-        printf("ERROR: unable to allocate memory for request object\n");
-        exit(-1);
+        fprintf(stderr, "ERROR: unable to allocate memory for request object\n");
+        return NULL;
     }
 
     req->command = type;
@@ -87,8 +85,8 @@ request_t* createRequestFromParts(command_type type, const char* path, long data
 
 char* serializeRequest(request_t* req) {
     if (req == NULL) {
-        printf("ERROR: tried to serialize a NULL request object;");
-        exit(-1);
+        fprintf(stderr, "ERROR: tried to serialize a NULL request object\n");
+        return NULL;
     }
 
     const char* command_type = COMMAND_STRINGS[req->command];
@@ -105,8 +103,8 @@ char* serializeRequest(request_t* req) {
 
     char* reqString = malloc(sizeof(char) * len);
     if (reqString == NULL) {
-        printf("ERROR: unable to allocate %d bytes for the serialized string\n", len);
-        exit(-1);
+        fprintf(stderr, "ERROR: unable to allocate %d bytes for the serialized string\n", len);
+        return NULL;
     }
 
     sprintf(reqString, requestFormat, command_type, req->data_len, req->remote_path);
@@ -115,6 +113,11 @@ char* serializeRequest(request_t* req) {
 }
 
 request_t* deSerializeRequest(const char* buffer) {
+    if (buffer == NULL) {
+        fprintf(stderr, "ERROR: tried to de-serialize a NULL string\n");
+        return NULL;
+    }
+
     command_type type;
     char* path;
     long data_len;
@@ -132,14 +135,14 @@ request_t* deSerializeRequest(const char* buffer) {
             path = strdup(token);
         } else {
             // something went wrong there shouldn't be a 4th token
-            printf("ERROR: request string has too many fields\n");
+            printf("WARNING: request string has too many fields\n");
         }
         i += 1;
     }
     free(buffer_cpy);
 
     if (i < 3) {
-        printf("ERROR: request string doesn't follow format 'command,data_len,remote_path'\n");
+        fprintf(stderr, "ERROR: request string doesn't follow format 'command,data_len,remote_path'\n");
         return NULL;
     } else {
         return createRequestFromParts(type, path, data_len);
@@ -157,8 +160,8 @@ void freeRequest(request_t* req) {
 response_t* createResponse(bool success, const char* message, long size) {
     response_t* res = malloc(sizeof(response_t));
     if (res == NULL) {
-        printf("ERROR: unable to allocate memory for response\n");
-        exit(-1);
+        fprintf(stderr, "ERROR: unable to allocate memory for response\n");
+        return NULL;
     }
 
     res->status = success;
@@ -170,8 +173,8 @@ response_t* createResponse(bool success, const char* message, long size) {
 
 char* serializeResponse(response_t* res) {
     if (res == NULL) {
-        printf("ERROR: tried to serialize a NULL response object;");
-        exit(-1);
+        fprintf(stderr, "ERROR: tried to serialize a NULL response object\n");
+        return NULL;
     }
 
     int num_digits;
@@ -186,8 +189,8 @@ char* serializeResponse(response_t* res) {
 
     char* resString = malloc(sizeof(char) * len);
     if (resString == NULL) {
-        printf("ERROR: unable to allocate %d bytes for the serialized string\n", len);
-        exit(-1);
+        fprintf(stderr, "ERROR: unable to allocate %d bytes for the serialized string\n", len);
+        return NULL;
     }
 
     sprintf(resString, responseFormat, res->status, res->data_len, res->message);
@@ -196,6 +199,11 @@ char* serializeResponse(response_t* res) {
 }
 
 response_t* deSerializeResponse(const char* buffer) {
+    if (buffer == NULL) {
+        fprintf(stderr, "ERROR: tried to de-serialize a NULL string\n");
+        return NULL;
+    }
+
     bool success;
     char* message;
     long data_len;
@@ -211,15 +219,16 @@ response_t* deSerializeResponse(const char* buffer) {
             } else if (equals(token, "1")) {
                 success = true;
             } else {
-                printf("ERROR: response string has invalid boolean value\n");
-                exit(-1);
+                fprintf(stderr, "ERROR: response string has invalid boolean value\n");
+                free(buffer_cpy);
+                return NULL;
             }
         } else if (i == 1) {  // token = data_len
             data_len = strtol(token, NULL, 10);
         } else if (i == 2) {
             message = strdup(token);
         } else {
-            printf("WARNING: response string has too many fields\n");
+            fprintf(stderr, "WARNING: response string has too many fields\n");
         }
 
         i += 1;
@@ -227,7 +236,7 @@ response_t* deSerializeResponse(const char* buffer) {
     free(buffer_cpy);
 
     if (i < 3) {
-        printf("ERROR: response string doesn't follow format 'status,data_len,message'\n");
+        fprintf(stderr, "ERROR: response string doesn't follow format 'status,data_len,message'\n");
         return NULL;
     } else {
         return createResponse(success, message, data_len);
