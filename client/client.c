@@ -58,6 +58,7 @@ void sendFileContents(const char* file_path, const long file_size, const int soc
 }
 
 void sendRequest(command_t* command, const int socket_descriptor) {
+    // TODO: Check for NULL returns from createRequest and serializeRequest
     // no matter what send the command to the server
     request_t* req = createRequest(command);
 
