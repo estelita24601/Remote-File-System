@@ -62,7 +62,7 @@ request_t* createRequestFromParts(command_type type, const char* path, long data
     if (type == UNKNOWN || type > NUM_COMMANDS) {
         fprintf(stderr, "WARNING: tried to create request object with UNKNOWN command type\n");
         return NULL;
-    } else if (strlen(path) == 0) {
+    } else if (path == NULL || strlen(path) == 0) {
         fprintf(stderr, "WARNING: tried to create request object with non-existent file path\n");
         return NULL;
     } else if (data_length < 0) {
