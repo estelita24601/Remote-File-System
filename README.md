@@ -18,3 +18,4 @@
 <https://thelinuxcode.com/sockaddr-in-structure-usage-c/>
 <https://thelinuxcode.com/c-recv-function-usage/>
 <https://stackoverflow.com/questions/2862071/how-large-should-my-recv-buffer-be-when-calling-recv-in-the-socket-library>
+<https://www.geeksforgeeks.org/c/converting-string-to-long-in-c/>
