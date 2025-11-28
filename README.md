@@ -19,3 +19,5 @@
 <https://thelinuxcode.com/c-recv-function-usage/>
 <https://stackoverflow.com/questions/2862071/how-large-should-my-recv-buffer-be-when-calling-recv-in-the-socket-library>
 <https://www.geeksforgeeks.org/c/converting-string-to-long-in-c/>
+<https://chatgpt.com/share/69294bfe-a954-800e-8d48-fd0a1c3636e6>
+<https://linuxvox.com/blog/dev-null-in-linux/>
