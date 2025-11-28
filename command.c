@@ -30,6 +30,11 @@ const char* SERIALIZE_FORMAT = "%d,%s,%s";  // "command_enum,local_path,remote_p
  * @return false - if string a != string b
  */
 bool equals(const char* a, const char* b) {
+    if (a == NULL && b == NULL) {
+        return true;
+    } else if (a == NULL || b == NULL) {
+        return false;
+    }
     if (strcmp(a, b) == 0) return true;
     return false;
 }
