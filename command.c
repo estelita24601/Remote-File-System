@@ -69,14 +69,15 @@ command_type strToCommandType(const char* str) {
 }
 
 /**
- * @brief Create a command_t object
+ * @brief Create a Command Struct object
  *
  * @param type
+ * @param ip_address
  * @param local
  * @param remote
  * @return command_t*
  */
-command_t* createCommandStruct(command_type type, const char* local, const char* remote) {
+command_t* createCommandStruct(command_type type, const char* ip_address, const char* local, const char* remote) {
     command_t* cmd = malloc(sizeof(command_t));
     if (cmd == NULL) {
         printf("ERROR: unable to allocate memory for command_t struct");
@@ -84,6 +85,8 @@ command_t* createCommandStruct(command_type type, const char* local, const char*
     }
 
     cmd->c_type = type;
+
+    cmd->server_ip = strdup(ip_address);
 
     cmd->local_path = strdup(local);
 
@@ -101,6 +104,7 @@ void freeCommandStruct(command_t* cmd) {
     if (cmd == NULL) {
         return;
     }
+    free(cmd->server_ip);
     free(cmd->local_path);
     free(cmd->remote_path);
 }

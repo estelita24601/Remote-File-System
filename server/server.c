@@ -122,7 +122,7 @@ int main(void) {
 
     // use server port number and ip address defined in config.h
     server_address.sin_port = htons(PORT);
-    server_address.sin_addr.s_addr = inet_addr(IP_ADDRESS);
+    server_address.sin_addr.s_addr = INADDR_ANY;
 
     // Bind to the set port and IP:
     int bindingStatus = bind(socket_descriptor, (struct sockaddr*) &server_address, sizeof(server_address));

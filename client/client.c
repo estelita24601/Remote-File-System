@@ -21,6 +21,13 @@
 #include "../protocol.h"
 #include "arg_parser.h"
 
+/**
+ * @brief
+ *
+ * @param file_path
+ * @param file_size
+ * @param socket_descriptor
+ */
 void sendFileContents(const char* file_path, const long file_size, const int socket_descriptor) {
     // try to open file from local_path
     FILE* local_file = fopen(file_path, "rb");
@@ -56,6 +63,12 @@ void sendFileContents(const char* file_path, const long file_size, const int soc
     fclose(local_file);
 }
 
+/**
+ * @brief
+ *
+ * @param command
+ * @param socket_descriptor
+ */
 void sendRequest(command_t* command, const int socket_descriptor) {
     // create a request object using the command from the args
     request_t* req = createRequest(command);
@@ -106,10 +119,8 @@ int main(int argc, char* argv[]) {
     // set up the struct for the server address
     struct sockaddr_in server_address;
     server_address.sin_family = AF_INET;
-
-    // use server port number and ip address defined in config.h
     server_address.sin_port = htons(PORT);
-    server_address.sin_addr.s_addr = inet_addr(IP_ADDRESS);
+    server_address.sin_addr.s_addr = inet_addr(command->server_ip);
 
     // try to connect to the server
     struct sockaddr* socket_address = (struct sockaddr*) &server_address;

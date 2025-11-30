@@ -12,13 +12,11 @@
 
 const char* REMOTE_FLAG = "--remote";
 const char* LOCAL_FLAG = "--local";
+const char* SERVER_FLAG = "--server";
 
 void printHelp() {
     printf("Usage:\n");
-    printf("  rfs WRITE --local LOCAL_PATH [--remote REMOTE_PATH]\n");
-    printf("  rfs GET --remote REMOTE_PATH [--local LOCAL_PATH]\n");
-    printf("  rfs RM --remote REMOTE_PATH\n");
-    printf("  rfs LS --remote REMOTE_PATH\n");
+    printf("  rfs <COMMAND> [ARGUMENTS]\n\n");
 
     printf("Commands:\n");
     printf("  WRITE    Upload a local file to the remote file system\n");
@@ -27,8 +25,15 @@ void printHelp() {
     printf("  LS       List version history for a file in the remote file system\n\n");
 
     printf("Arguments:\n");
+    printf("  --server IP     optional IP address of the remote server (default: localhost)\n");
     printf("  --local PATH    Path to a local file (required for WRITE, optional for GET)\n");
-    printf("  --remote PATH   Path to a remote file (optional for WRITE, required for GET, target for RM and LS)\n");
+    printf("  --remote PATH   Path to a remote file (required for GET/RM/LS, optional for WRITE)\n\n");
+
+    printf("Examples:\n");
+    printf("  rfs WRITE --local PATH \n");
+    printf("  rfs GET --remote PATH\n");
+    printf("  rfs RM --remote PATH\n");
+    printf("  rfs LS --remote PATH\n");
 }
 
 /**
@@ -85,8 +90,6 @@ char* getPathArg(int argc, char* argv[], const char* flag) {
     return NULL;  // never found the flag in the args
 }
 
-
-
 /**
  * @brief
  *
@@ -103,9 +106,17 @@ command_t* argParser(int argc, char* argv[]) {
         exit(1);
     }
 
-    // get filepaths from the args
+    // get values from the args
+    char* ip_address = getPathArg(argc, argv, SERVER_FLAG);
     char* local_path = getPathArg(argc, argv, LOCAL_FLAG);
     char* remote_path = getPathArg(argc, argv, REMOTE_FLAG);
+
+    // default ip address is localhost
+    if (ip_address == NULL) {
+        ip_address = "127.0.0.1";
+    }
+
+    // make sure required local or remote path is included in the args
     if (commandType == WRITE) {
         // local path required
         if (local_path == NULL) {
@@ -135,7 +146,7 @@ command_t* argParser(int argc, char* argv[]) {
             local_path = "";
         }
     }
-    return createCommandStruct(commandType, local_path, remote_path);
+    return createCommandStruct(commandType, ip_address, local_path, remote_path);
 }
 
 #ifdef TEST_ARGS

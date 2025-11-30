@@ -27,7 +27,6 @@ command_type getCommandType(int argc, char* argv[]);
 
 char* getPathArg(int argc, char* argv[], const char* flag);
 
-
 command_t* argParser(int argc, char* argv[]);
 
 #endif
