@@ -6,11 +6,11 @@
 - [x] serialize request object
 - [x] send request object to server
 - [x] send file contents to server
-- [ ] de-serialize request object
-- [ ] serialize response object
-- [ ] send response object to client
-- [ ] de-serialize response object
-- [ ] send file contents to client
+- [x] de-serialize request object
+- [x] serialize response object
+- [x] send response object to client
+- [x] de-serialize response object
+- [] send file contents to client
 
 # references
 
