@@ -123,12 +123,15 @@ int main(int argc, char* argv[]) {
     sendRequest(command, socket_descriptor);
 
     // receive server response
-    // status = recv(socket_descriptor, buffer, sizeof(buffer), 0);
-    // if (status < 0) {
-    //     printf("ERROR: unable to receive response from server\n");
-    //     close(socket_descriptor);
-    //     return -1;
-    // }
+    char buffer[MAX_BUFF_SIZE];
+    memset(buffer, '\0', MAX_BUFF_SIZE);
+    status = recv(socket_descriptor, buffer, sizeof(buffer), 0);
+    if (status < 0) {
+        printf("ERROR: unable to receive response from server\n");
+        close(socket_descriptor);
+        return -1;
+    }
+    printf("SERVER RESPONSE:\n%s\n", buffer);
 
     // handle server response
     // todo

@@ -135,8 +135,11 @@ request_t* deSerializeRequest(const char* buffer) {
             path = strdup(token);
         } else {
             // something went wrong there shouldn't be a 4th token
-            printf("WARNING: request string has too many fields\n");
+            printf("\tdeSerializeRequest() %dth token = %s\n", i, token);
         }
+
+        // go to the next token
+        token = strtok(NULL, ",");
         i += 1;
     }
     free(buffer_cpy);
