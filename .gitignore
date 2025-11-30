@@ -56,3 +56,8 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# executables
+client/rfs
+server/rfs_server
+tests/rfs_test
