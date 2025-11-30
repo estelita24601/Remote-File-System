@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall
 
-.PHONY: client server clean
+.PHONY: all client server clean test_args test_protocol
 
 all: client server
 
@@ -19,4 +19,3 @@ test_protocol: tests/protocol_test.c protocol.c command.c
 
 clean:
 	rm -f client/rfs server/rfs_server tests/rfs_test
-	touch client/client.c server/server.c tests/protocol_test.c
