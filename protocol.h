@@ -24,13 +24,13 @@ extern const char* responseFormat;
 typedef struct request {
     command_type command;
     char* remote_path;
-    long data_len;
+    long data_len;  // how much data to expect AFTER this request
 } request_t;
 
 typedef struct response {
-    bool status;  // was there an error or failure?
-    char* message;
-    long data_len;
+    bool status;    // was there an error or failure?
+    char* message;  // error message if neccesary
+    long data_len;  // how much data to expect AFTER this response
 } response_t;
 
 request_t* createRequest(command_t* command);

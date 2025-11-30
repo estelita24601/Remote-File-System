@@ -34,8 +34,7 @@ void sendFileContents(const char* file_path, const long file_size, const int soc
     memset(buffer, '\0', sizeof(buffer));
 
     debug("sendFileContents()\n");
-    // keep on sending data to server until we reach EOF
-    while (!feof(local_file)) {
+    while (true) {
         // put file contents into the buffer
         size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, local_file);
 
@@ -48,26 +47,35 @@ void sendFileContents(const char* file_path, const long file_size, const int soc
             exit(-1);
         }
 
-        debug("----\n%s\n", buffer);
-
-        // reset buffer just in case
-        memset(buffer, '\0', sizeof(buffer));
+        // keep on sending data to server until we reach EOF
+        if (feof(local_file)) {
+            break;
+        }
     }
 
     fclose(local_file);
 }
 
 void sendRequest(command_t* command, const int socket_descriptor) {
-    // TODO: Check for NULL returns from createRequest and serializeRequest
-    // no matter what send the command to the server
+    // create a request object using the command from the args
     request_t* req = createRequest(command);
+    if (req == NULL) {
+        fprintf(stderr, "ERROR: unable to create request object\n");
+        exit(-1);
+    }
 
+    // turn the request object into char* message we can send
     char* buffer = serializeRequest(req);
     debug("serializeRequest() -> %s\n", buffer);
+    if (buffer == NULL) {
+        fprintf(stderr, "ERROR: unable to serialize request object\n");
+        exit(-1);
+    }
 
+    // send the request to the server
     int status = send(socket_descriptor, buffer, strlen(buffer), 0);
     if (status < 0) {
-        printf("ERROR: unable to send message to server\n");
+        fprintf(stderr, "ERROR: unable to send message to server\n");
         close(socket_descriptor);
         exit(-1);
     }
