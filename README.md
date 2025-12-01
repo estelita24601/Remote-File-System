@@ -21,3 +21,7 @@
 <https://www.geeksforgeeks.org/c/converting-string-to-long-in-c/>
 <https://chatgpt.com/share/69294bfe-a954-800e-8d48-fd0a1c3636e6>
 <https://linuxvox.com/blog/dev-null-in-linux/>
+<https://sample-files.com/>
+<https://www.geeksforgeeks.org/c/c-program-display-hostname-ip-address/#>
+<https://www.man7.org/linux/man-pages/man2/gethostname.2.html>
+<https://thelinuxcode.com/gethostbyname-function-c/>
