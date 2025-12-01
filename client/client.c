@@ -97,6 +97,7 @@ int main(int argc, char* argv[]) {
         close(socket_descriptor);
         return -1;
     }
+    printf("Socket created successfully\n");
 
     // set up the struct for the server address
     struct sockaddr_in server_address;
@@ -112,6 +113,7 @@ int main(int argc, char* argv[]) {
         close(socket_descriptor);
         return -1;
     }
+    printf("Connected with server successfully\n");
 
     sendRequest(command, socket_descriptor);
 
