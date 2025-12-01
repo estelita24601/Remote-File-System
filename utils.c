@@ -10,6 +10,23 @@ bool equals(const char* a, const char* b) {
     return false;
 }
 
+long getFileSize(const char* file_path) {
+    // try to open the file
+    FILE* file = fopen(file_path, "rb");
+    if (file == NULL) {
+        fprintf(stderr, "ERROR: unable to open %s\n", file_path);
+        return -1;
+    }
+
+    // seek to EOF to get num characters in the file
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+
+    // close file and return size we found
+    fclose(file);
+    return file_size;
+}
+
 bool sendFileContents(const char* source_file, const long file_size, const int socket_descriptor) {
     // try to open file we were given
     FILE* file = fopen(source_file, "rb");

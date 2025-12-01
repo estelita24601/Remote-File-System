@@ -16,6 +16,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils.h"
+
 const char* requestFormat = "%s,%ld,%s";   // command,data_len,remote_path
 const char* responseFormat = "%d,%ld,%s";  // status,data_len,message
 
@@ -36,22 +38,17 @@ request_t* createRequest(command_t* command) {
 
     req->command = command->c_type;
     req->remote_path = strdup(command->remote_path);
-    req->data_len = 0;
 
     if (command->c_type == WRITE) {
-        // try to open the file
-        FILE* local_file = fopen(command->local_path, "rb");
-        if (local_file == NULL) {
-            fprintf(stderr, "ERROR: unable to open local file %s\n", command->local_path);
-            free(req->remote_path);
-            free(req);
+        long data_len = getFileSize(command->local_path);
+        if (data_len < 0) {
+            freeRequest(req);
             return NULL;
+        } else {
+            req->data_len = data_len;
         }
-
-        // seek to EOF to get num characters in the file
-        fseek(local_file, 0, SEEK_END);
-        req->data_len = ftell(local_file);
-        fclose(local_file);
+    } else {
+        req->data_len = 0;
     }
 
     return req;
