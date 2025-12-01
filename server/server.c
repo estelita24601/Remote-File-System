@@ -102,7 +102,6 @@ bool buildAndSendResponse(const int socket_descriptor, bool response_status, lon
     return status;
 }
 
-// TODO: fixme currently just prints localhost 127.0.0.1
 void printServerAddress() {
     FILE* output = popen("hostname -I | awk '{print $1}'", "r");
 
@@ -191,17 +190,17 @@ int main(void) {
     // print out ip address a client could use to connect to this server
     printServerAddress();
 
+    // Listen for clients:
+    int listenStatus = listen(socket_descriptor, 1);
+    if (listenStatus < 0) {
+        fprintf(stderr, "Error while listening\n");
+        close(socket_descriptor);
+        return -1;
+    }
+    printf("\nListening for incoming connections.....\n");
+
     // keep going until server process is terminated
     while (true) {
-        // Listen for clients:
-        int listenStatus = listen(socket_descriptor, 1);
-        if (listenStatus < 0) {
-            fprintf(stderr, "Error while listening\n");
-            close(socket_descriptor);
-            return -1;
-        }
-        printf("\nListening for incoming connections.....\n");
-
         // Accept an incoming connection:
         struct sockaddr_in client_addr;
         socklen_t client_size = sizeof(client_addr);

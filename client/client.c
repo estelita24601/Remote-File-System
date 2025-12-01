@@ -104,16 +104,19 @@ int main(int argc, char* argv[]) {
     server_address.sin_family = AF_INET;
     server_address.sin_port = htons(PORT);
     server_address.sin_addr.s_addr = inet_addr(command->server_ip);
+    printf("trying to connect to server with IP %s at port %d\n", command->server_ip, PORT);
 
     // try to connect to the server
     struct sockaddr* socket_address = (struct sockaddr*) &server_address;
     int status = connect(socket_descriptor, socket_address, sizeof(server_address));
+    // fixme: never gets here
     if (status < 0) {
         printf("ERROR: unable to connect to server\n");
         close(socket_descriptor);
         return -1;
+    } else {
+        printf("Connected with server successfully\n");
     }
-    printf("Connected with server successfully\n");
 
     sendRequest(command, socket_descriptor);
 
