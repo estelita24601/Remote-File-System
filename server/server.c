@@ -84,6 +84,24 @@ bool sendResponse(const int socket_descriptor, response_t* res) {
     return true;
 }
 
+/**
+ * @brief - given all the response parameters it will create the response_t struct for you and free it after its finished
+ *
+ * @param socket_descriptor - where to send the response
+ * @param response_status - bool for if request fulfillment was successful
+ * @param response_len - long for how many bytes of data to expect AFTER this response is sent
+ * @param response_message - char*
+ * @return true - if successfully able to build and send response to the socket
+ * @return false - otherwise
+ */
+bool buildAndSendResponse(const int socket_descriptor, bool response_status, long response_len, const char* response_message) {
+    response_t* res = createResponse(response_status, response_message, response_len);
+    bool status = sendResponse(socket_descriptor, res);
+
+    freeResponse(res);
+    return status;
+}
+
 // TODO: fixme currently just prints localhost 127.0.0.1
 void printServerAddress() {
     char hostname[256];
@@ -113,9 +131,8 @@ void handleWriteRequest(request_t* write_request, const int socket_descriptor) {
     bool status = receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
 
     // todo if time: receiveFileContents() returns a struct that gives us the bool status AND string error message
-    response_t* res = createResponse(status, "", 0);
-    sendResponse(socket_descriptor, res);
-    freeResponse(res);
+
+    buildAndSendResponse(socket_descriptor, status, 0, "");
 }
 
 /**
@@ -129,14 +146,10 @@ void handleGetRequest(request_t* get_request, const int socket_descriptor) {
     long source_length = getFileSize(source_path);
 
     if (source_length < 0) {
-        response_t* res = createResponse(false, "unable to open and/or get size of the requested file", 0);
-        sendResponse(socket_descriptor, res);
-        freeResponse(res);
+        buildAndSendResponse(socket_descriptor, false, 0, "unable to open and/or get size of the requested file");
         return;
     } else {
-        response_t* res = createResponse(true, "OK", source_length);
-        sendResponse(socket_descriptor, res);
-        freeResponse(res);
+        sendResposneClosed(socket_descriptor, true, source_length, "OK");
     }
 
     sendFileContents(source_path, source_length, socket_descriptor);
@@ -152,17 +165,11 @@ void handleRemoveRequest(request_t* remove_request, const int socket_descriptor)
     char* filepath = remove_request->remote_path;
 
     if (strlen(filepath) == 0) {
-        response_t* res = createResponse(false, "didn't receive file path", 0);
-        sendResponse(socket_descriptor, res);
-        freeResponse(res);
+        buildAndSendResponse(socket_descriptor, false, 0, "didn't receive file path");
     } else if (remove(filepath) == 0) {
-        response_t* res = createResponse(true, "OK", 0);
-        sendResponse(socket_descriptor, res);
-        freeResponse(res);
+        buildAndSendResponse(socket_descriptor, true, 0, "OK");
     } else {
-        response_t* res = createResponse(false, "unable to remove file", 0);
-        sendResponse(socket_descriptor, res);
-        freeResponse(res);
+        buildAndSendResponse(socket_descriptor, false, 0, "unable to remove file");
     }
 }
 
@@ -216,16 +223,13 @@ int main(void) {
             close(client_socket_descriptor);
             return -1;
         }
-        printf("Client connected at IP: %s and port: %i\n", inet_ntoa(client_addr.sin_addr),
-               ntohs(client_addr.sin_port));
+        printf("Client connected at IP: %s and port: %i\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
         // Receive client's message:
         request_t* client_req = receiveRequest(client_socket_descriptor);
         if (client_req == NULL) {
             // try to tell client that there was a failure
-            response_t* res = createResponse(false, "unable to receive request", 0);
-            sendResponse(client_socket_descriptor, res);
-            freeResponse(res);
+            buildAndSendResponse(client_socket_descriptor, false, 0, "unable to receive request");
 
             // give up on this client and wait for the next one
             close(client_socket_descriptor);
@@ -245,12 +249,11 @@ int main(void) {
                 handleGetRequest(client_req, client_socket_descriptor);
                 break;
             case LS:
-                // todo: optional
+                // todo (optional): handleListRequest function
+                buildAndSendResponse(client_socket_descriptor, false, 0, "optional command isn't implemented yet");
                 break;
             default:
-                res = createResponse(false, "didn't receive valid command", 0);
-                sendResponse(client_socket_descriptor, res);
-                freeResponse(res);
+                buildAndSendResponse(client_socket_descriptor, false, 0, "didn't receive valid command");
                 break;
         }
         freeRequest(client_req);
