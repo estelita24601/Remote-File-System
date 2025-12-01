@@ -6,6 +6,8 @@
  */
 
 #include <arpa/inet.h>
+#include <netdb.h>
+#include <netinet/in.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +18,12 @@
 #include "../config.h"
 #include "../protocol.h"
 
+/**
+ * @brief
+ *
+ * @param socket_descriptor
+ * @return request_t*
+ */
 request_t* receiveRequest(const int socket_descriptor) {
     // initialize empty buffer
     char buffer[MAX_BUFF_SIZE];
@@ -39,6 +47,13 @@ request_t* receiveRequest(const int socket_descriptor) {
     return req;
 }
 
+/**
+ * @brief
+ *
+ * @param write_request
+ * @param socket_descriptor
+ * @return response_t*
+ */
 response_t* handleWrite(request_t* write_request, const int socket_descriptor) {
     // try to open the file they asked us to write to
     FILE* file = fopen(write_request->remote_path, "wb");
@@ -81,6 +96,14 @@ response_t* handleWrite(request_t* write_request, const int socket_descriptor) {
     return createResponse(status, error_message, 0);
 }
 
+/**
+ * @brief
+ *
+ * @param socket_descriptor
+ * @param res
+ * @return true
+ * @return false
+ */
 bool sendResponse(const int socket_descriptor, response_t* res) {
     // serialize response object
     char* response_str = serializeResponse(res);
@@ -99,6 +122,25 @@ bool sendResponse(const int socket_descriptor, response_t* res) {
 
     free(response_str);
     return true;
+}
+
+// TODO: fixme currently just prints localhost 127.0.0.1
+void printServerAddress() {
+    char hostname[256];
+    int status = gethostname(hostname, sizeof(hostname));
+    if (status < 0) {
+        fprintf(stderr, "WARNING: unable to get hostname for this server\n");
+        return;
+    }
+
+    struct hostent* host_info = gethostbyname(hostname);
+    printf("IP Addresses:\n");
+    struct in_addr** address_list = (struct in_addr**) host_info->h_addr_list;
+    int i = 0;
+    while (address_list[i] != NULL) {
+        printf("  %s", inet_ntoa(*address_list[i]));
+        i++;
+    }
 }
 
 int main(void) {
@@ -132,9 +174,11 @@ int main(void) {
     }
     debug("Done with binding\n");
 
+    // print out ip address a client could use to connect to this server
+    printServerAddress();
+
     socklen_t client_size;
     struct sockaddr_in client_addr;
-
     while (true) {
         // Listen for clients:
         int listenStatus = listen(socket_descriptor, 1);
