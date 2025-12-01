@@ -109,7 +109,7 @@ void printServerAddress() {
  * @param write_request
  * @param socket_descriptor
  */
-void handleWrite(request_t* write_request, const int socket_descriptor) {
+void handleWriteRequest(request_t* write_request, const int socket_descriptor) {
     bool status = receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
 
     // todo if time: receiveFileContents() returns a struct that gives us the bool status AND string error message
@@ -124,7 +124,7 @@ void handleWrite(request_t* write_request, const int socket_descriptor) {
  * @param get_request
  * @param socket_descriptor
  */
-void handleGet(request_t* get_request, const int socket_descriptor) {
+void handleGetRequest(request_t* get_request, const int socket_descriptor) {
     char* source_path = get_request->remote_path;
     long source_length = getFileSize(source_path);
 
@@ -212,13 +212,13 @@ int main(void) {
         response_t* res;
         switch (client_req->command) {
             case WRITE:
-                handleWrite(client_req, client_socket_descriptor);
+                handleWriteRequest(client_req, client_socket_descriptor);
                 break;
             case RM:
                 // todo
                 break;
             case GET:
-                handleGet(client_req, client_socket_descriptor);
+                handleGetRequest(client_req, client_socket_descriptor);
                 break;
             case LS:
                 // todo: optional

@@ -22,50 +22,6 @@
 #include "../utils.h"
 #include "arg_parser.h"
 
-// /**
-//  * @brief
-//  *
-//  * @param file_path
-//  * @param file_size
-//  * @param socket_descriptor
-//  */
-// void sendFileContents(const char* file_path, const long file_size, const int socket_descriptor) {
-//     // try to open file from local_path
-//     FILE* file = fopen(file_path, "rb");
-//     if (file == NULL) {
-//         printf("ERROR:unable to open file %s\n", file_path);
-//         exit(-1);
-//     }
-
-//     // create buffer
-//     char buffer[MAX_BUFF_SIZE];
-//     memset(buffer, '\0', sizeof(buffer));
-
-//     debug("sendFileContents()\n");
-//     while (true) {
-//         debug("- ");  // sort of like a progress bar to see how many times the loop iterates
-
-//         // put file contents into the buffer
-//         size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, file);
-
-//         // send to the server
-//         int status = send(socket_descriptor, buffer, buffer_fill, 0);
-//         if (status < 0) {
-//             fprintf(stderr, "ERROR: unable to send file contents\n");
-//             close(socket_descriptor);
-//             fclose(file);
-//             exit(-1);
-//         }
-
-//         // keep on sending data to server until we reach EOF
-//         if (feof(file)) {
-//             break;
-//         }
-//     }
-
-//     fclose(file);
-// }
-
 /**
  * @brief
  *
@@ -102,6 +58,29 @@ void sendRequest(command_t* command, const int socket_descriptor) {
     }
 
     freeRequest(req);
+}
+
+void displayServerResponse(response_t* response) {
+    if (response->status == true) {
+        printf("SUCCESS\n");
+    } else if (equals(response->message, "NULL") || equals(response->message, "")) {
+        printf("ENCOUNTERED UNKNOWN ERROR(S)\n");
+    } else {
+        printf("ENCOUNTERED ERROR(S) - %s\n", response->message);
+    }
+
+    if (response->data_len != 0) {
+        printf("    BYTES SENT = %ld", response->data_len);
+    }
+}
+
+void handleGetResponse(const char* filepath, response_t* response, const int socket_descriptor) {
+    long source_length = response->data_len;
+    if (source_length < 0) {
+        printf("ERROR: server said that it sent %ld bytes\n", source_length);
+    } else {
+        receiveFileContents(filepath, source_length, socket_descriptor);
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -145,10 +124,33 @@ int main(int argc, char* argv[]) {
         close(socket_descriptor);
         return -1;
     }
-    printf("SERVER RESPONSE:\n%s\n", buffer);
 
     // handle server response
-    // todo
+    response_t* response = deSerializeResponse(buffer);
+    if (response == NULL) {
+        printf("WARNING: unable to de-serialize response\n");
+        printf("raw server response = %s\n", buffer);
+
+        // end program early
+        close(socket_descriptor);
+        freeCommandStruct(command);
+        return -1;
+    }
+
+    switch (command->c_type) {
+        case WRITE:
+        case RM:
+            // write and rm deal with the same, just print out the response
+            displayServerResponse(response);
+            break;
+        case GET:
+            handleGetResponse(command->local_path, response, socket_descriptor);
+            break;
+        case LS:
+            // todo: OPTIONAL
+            break;
+        default:
+    }
 
     // close socket and end program
     close(socket_descriptor);
