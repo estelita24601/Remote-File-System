@@ -51,18 +51,6 @@ request_t* receiveRequest(const int socket_descriptor) {
 /**
  * @brief
  *
- * @param write_request
- * @param socket_descriptor
- * @return response_t*
- */
-response_t* handleWrite(request_t* write_request, const int socket_descriptor) {
-    bool status = receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
-    return createResponse(status, NULL, 0);
-}
-
-/**
- * @brief
- *
  * @param socket_descriptor int - where to send the response
  * @param res response_t* - what we want to send
  * @return true - if successfully able to send the response to the client
@@ -113,6 +101,37 @@ void printServerAddress() {
         printf("  %s", inet_ntoa(*address_list[i]));
         i++;
     }
+}
+
+/**
+ * @brief
+ *
+ * @param write_request
+ * @param socket_descriptor
+ */
+void handleWrite(request_t* write_request, const int socket_descriptor) {
+    bool status = receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
+
+    response_t* res = createResponse(status, NULL, 0);
+    sendResponse(socket_descriptor, res);
+    freeResponse(res);
+}
+
+/**
+ * @brief
+ *
+ * @param get_request
+ * @param socket_descriptor
+ */
+void handleGet(request_t* get_request, const int socket_descriptor) {
+    char* source_path = get_request->remote_path;
+    long source_length;  // todo:
+
+    bool status = sendFileContents(source_path, source_length, socket_descriptor);
+
+    response_t* res = createResponse(status, NULL, source_length);
+    sendResponse(socket_descriptor, res);
+    freeResponse(res);
 }
 
 int main(void) {
@@ -185,15 +204,13 @@ int main(void) {
         response_t* res;
         switch (client_req->command) {
             case WRITE:
-                res = handleWrite(client_req, client_socket_descriptor);
-                sendResponse(client_socket_descriptor, res);
-                freeResponse(res);
+                handleWrite(client_req, client_socket_descriptor);
                 break;
             case RM:
                 // todo
                 break;
             case GET:
-                // todo
+                handleGet(client_req, client_socket_descriptor);
                 break;
             case LS:
                 // todo: optional
@@ -204,6 +221,7 @@ int main(void) {
                 freeResponse(res);
                 break;
         }
+        freeRequest(client_req);
 
         // close client socket now that we're finished with this client
         close(client_socket_descriptor);
