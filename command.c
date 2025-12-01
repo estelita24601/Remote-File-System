@@ -23,12 +23,6 @@ const int NUM_COMMANDS = 4;
 
 const char* SERIALIZE_FORMAT = "%d,%s,%s";  // "command_enum,local_path,remote_path"
 
-/**
- * @brief
- *
- * @param str
- * @return command_type
- */
 command_type strToCommandType(const char* str) {
     // first see if it matches one of the strings from the list
     for (int i = 0; i < NUM_COMMANDS; i++) {
@@ -52,15 +46,6 @@ command_type strToCommandType(const char* str) {
     return UNKNOWN;
 }
 
-/**
- * @brief Create a Command Struct object
- *
- * @param type
- * @param ip_address
- * @param local
- * @param remote
- * @return command_t*
- */
 command_t* createCommandStruct(command_type type, const char* ip_address, const char* local, const char* remote) {
     command_t* cmd = malloc(sizeof(command_t));
     if (cmd == NULL) {
@@ -79,11 +64,6 @@ command_t* createCommandStruct(command_type type, const char* ip_address, const 
     return cmd;
 }
 
-/**
- * @brief
- *
- * @param cmd
- */
 void freeCommandStruct(command_t* cmd) {
     if (cmd == NULL) {
         return;
