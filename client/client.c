@@ -19,51 +19,52 @@
 #include "../command.h"
 #include "../config.h"
 #include "../protocol.h"
+#include "../utils.h"
 #include "arg_parser.h"
 
-/**
- * @brief
- *
- * @param file_path
- * @param file_size
- * @param socket_descriptor
- */
-void sendFileContents(const char* file_path, const long file_size, const int socket_descriptor) {
-    // try to open file from local_path
-    FILE* file = fopen(file_path, "rb");
-    if (file == NULL) {
-        printf("ERROR:unable to open file %s\n", file_path);
-        exit(-1);
-    }
+// /**
+//  * @brief
+//  *
+//  * @param file_path
+//  * @param file_size
+//  * @param socket_descriptor
+//  */
+// void sendFileContents(const char* file_path, const long file_size, const int socket_descriptor) {
+//     // try to open file from local_path
+//     FILE* file = fopen(file_path, "rb");
+//     if (file == NULL) {
+//         printf("ERROR:unable to open file %s\n", file_path);
+//         exit(-1);
+//     }
 
-    // create buffer
-    char buffer[MAX_BUFF_SIZE];
-    memset(buffer, '\0', sizeof(buffer));
+//     // create buffer
+//     char buffer[MAX_BUFF_SIZE];
+//     memset(buffer, '\0', sizeof(buffer));
 
-    debug("sendFileContents()\n");
-    while (true) {
-        debug("- ");  // sort of like a progress bar to see how many times the loop iterates
+//     debug("sendFileContents()\n");
+//     while (true) {
+//         debug("- ");  // sort of like a progress bar to see how many times the loop iterates
 
-        // put file contents into the buffer
-        size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, file);
+//         // put file contents into the buffer
+//         size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, file);
 
-        // send to the server
-        int status = send(socket_descriptor, buffer, buffer_fill, 0);
-        if (status < 0) {
-            fprintf(stderr, "ERROR: unable to send file contents\n");
-            close(socket_descriptor);
-            fclose(file);
-            exit(-1);
-        }
+//         // send to the server
+//         int status = send(socket_descriptor, buffer, buffer_fill, 0);
+//         if (status < 0) {
+//             fprintf(stderr, "ERROR: unable to send file contents\n");
+//             close(socket_descriptor);
+//             fclose(file);
+//             exit(-1);
+//         }
 
-        // keep on sending data to server until we reach EOF
-        if (feof(file)) {
-            break;
-        }
-    }
+//         // keep on sending data to server until we reach EOF
+//         if (feof(file)) {
+//             break;
+//         }
+//     }
 
-    fclose(file);
-}
+//     fclose(file);
+// }
 
 /**
  * @brief

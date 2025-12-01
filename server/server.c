@@ -17,6 +17,7 @@
 
 #include "../config.h"
 #include "../protocol.h"
+#include "../utils.h"
 
 /**
  * @brief
@@ -55,45 +56,8 @@ request_t* receiveRequest(const int socket_descriptor) {
  * @return response_t*
  */
 response_t* handleWrite(request_t* write_request, const int socket_descriptor) {
-    // try to open the file they asked us to write to
-    FILE* file = fopen(write_request->remote_path, "wb");
-    if (file == NULL) {
-        return createResponse(false, "unable to open file", 0);
-    }
-
-    // initialize empty buffer
-    char buffer[MAX_BUFF_SIZE];
-    memset(buffer, '\0', MAX_BUFF_SIZE);
-
-    // initialize variables for the response we send
-    char error_message[MAX_BUFF_SIZE];
-    bool status;
-
-    // receive data from client and immediately write it to the file
-    // loop until we're done receiving data
-    long remaining = write_request->data_len;
-    while (remaining > 0) {
-        int bytes_received = recv(socket_descriptor, buffer, sizeof(buffer), 0);
-        if (bytes_received < 0) {
-            break;
-        }
-
-        int bytes_written = fwrite(buffer, 1, bytes_received, file);
-
-        // if there was an error then update response values
-        if (bytes_written != bytes_received) {
-            status = false;
-            char curr_error[MAX_BUFF_SIZE];
-            sprintf(curr_error, "WARNING: received %d bytes and wrote %d bytes to the file\n", bytes_received,
-                    bytes_written);
-            strcat(error_message, curr_error);
-        }
-
-        remaining -= bytes_received;
-    }
-
-    fclose(file);
-    return createResponse(status, error_message, 0);
+    bool status = receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
+    return createResponse(status, NULL, 0);
 }
 
 /**

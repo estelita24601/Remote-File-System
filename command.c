@@ -16,28 +16,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils.h"
+
 const char* COMMAND_STRINGS[] = {"WRITE", "GET", "RM", "LS"};
 const int NUM_COMMANDS = 4;
 
 const char* SERIALIZE_FORMAT = "%d,%s,%s";  // "command_enum,local_path,remote_path"
-
-/**
- * @brief shorthand for strcmp(a,b) == 0
- *
- * @param a const char*
- * @param b const char*
- * @return true - if string a == string b
- * @return false - if string a != string b
- */
-bool equals(const char* a, const char* b) {
-    if (a == NULL && b == NULL) {
-        return true;
-    } else if (a == NULL || b == NULL) {
-        return false;
-    }
-    if (strcmp(a, b) == 0) return true;
-    return false;
-}
 
 /**
  * @brief
