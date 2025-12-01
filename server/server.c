@@ -104,21 +104,13 @@ bool buildAndSendResponse(const int socket_descriptor, bool response_status, lon
 
 // TODO: fixme currently just prints localhost 127.0.0.1
 void printServerAddress() {
-    char hostname[256];
-    int status = gethostname(hostname, sizeof(hostname));
-    if (status < 0) {
-        fprintf(stderr, "WARNING: unable to get hostname for this server\n");
-        return;
-    }
+    FILE* output = popen("hostname -I | awk '{print $1}'", "r");
 
-    struct hostent* host_info = gethostbyname(hostname);
-    printf("IP Addresses:\n");
-    struct in_addr** address_list = (struct in_addr**) host_info->h_addr_list;
-    int i = 0;
-    while (address_list[i] != NULL) {
-        printf("  %s", inet_ntoa(*address_list[i]));
-        i++;
-    }
+    char buffer[100];
+    fgets(buffer, sizeof(buffer), output);
+    pclose(output);
+
+    printf("SERVER IP = %s\n", buffer);
 }
 
 /**
@@ -149,7 +141,7 @@ void handleGetRequest(request_t* get_request, const int socket_descriptor) {
         buildAndSendResponse(socket_descriptor, false, 0, "unable to open and/or get size of the requested file");
         return;
     } else {
-        sendResposneClosed(socket_descriptor, true, source_length, "OK");
+        buildAndSendResponse(socket_descriptor, true, source_length, "OK");
     }
 
     sendFileContents(source_path, source_length, socket_descriptor);
@@ -199,9 +191,6 @@ int main(void) {
     // print out ip address a client could use to connect to this server
     printServerAddress();
 
-    socklen_t client_size;
-    struct sockaddr_in client_addr;
-
     // keep going until server process is terminated
     while (true) {
         // Listen for clients:
@@ -214,6 +203,7 @@ int main(void) {
         printf("\nListening for incoming connections.....\n");
 
         // Accept an incoming connection:
+        struct sockaddr_in client_addr;
         socklen_t client_size = sizeof(client_addr);
         struct sockaddr* client_address = (struct sockaddr*) &client_addr;
         int client_socket_descriptor = accept(socket_descriptor, client_address, &client_size);
@@ -237,7 +227,6 @@ int main(void) {
         }
 
         // handle the request made by the client
-        response_t* res;
         switch (client_req->command) {
             case WRITE:
                 handleWriteRequest(client_req, client_socket_descriptor);
