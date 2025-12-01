@@ -30,9 +30,9 @@
  */
 void sendFileContents(const char* file_path, const long file_size, const int socket_descriptor) {
     // try to open file from local_path
-    FILE* local_file = fopen(file_path, "rb");
-    if (local_file == NULL) {
-        printf("ERROR:unable to open local file %s\n", file_path);
+    FILE* file = fopen(file_path, "rb");
+    if (file == NULL) {
+        printf("ERROR:unable to open file %s\n", file_path);
         exit(-1);
     }
 
@@ -42,25 +42,27 @@ void sendFileContents(const char* file_path, const long file_size, const int soc
 
     debug("sendFileContents()\n");
     while (true) {
+        debug("- ");  // sort of like a progress bar to see how many times the loop iterates
+
         // put file contents into the buffer
-        size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, local_file);
+        size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, file);
 
         // send to the server
         int status = send(socket_descriptor, buffer, buffer_fill, 0);
         if (status < 0) {
-            printf("ERROR: unable to send file contents to server\n");
+            fprintf(stderr, "ERROR: unable to send file contents\n");
             close(socket_descriptor);
-            fclose(local_file);
+            fclose(file);
             exit(-1);
         }
 
         // keep on sending data to server until we reach EOF
-        if (feof(local_file)) {
+        if (feof(file)) {
             break;
         }
     }
 
-    fclose(local_file);
+    fclose(file);
 }
 
 /**
