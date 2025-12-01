@@ -14,7 +14,7 @@ server: server/server.c protocol.c command.c
 test_args: client/arg_parser.c command.c
 	$(CC) $(CFLAGS) -DTEST_ARGS $^ -o tests/rfs_test
 
-test_protocol: tests/protocol_test.c protocol.c command.c
+test_protocol: tests/protocol_test.c tests/test_utils.c protocol.c command.c
 	$(CC) $(CFLAGS) $^ -o tests/rfs_test -lm
 
 clean:

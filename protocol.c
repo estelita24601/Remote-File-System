@@ -1,6 +1,6 @@
 /**
  * @file protocol.c
- * @author your name (you@domain.com)
+ * @author Estelita Chen
  * @brief
  * @version 0.1
  * @date 2025-11-25
@@ -162,15 +162,30 @@ void freeRequest(request_t* req) {
 
 response_t* createResponse(bool success, const char* message, long size) {
     response_t* res = malloc(sizeof(response_t));
+    // make sure malloc worked
     if (res == NULL) {
         fprintf(stderr, "ERROR: unable to allocate memory for response\n");
         return NULL;
     }
 
-    res->status = success;
-    res->data_len = size;
-    res->message = strdup(message);
+    // make sure message received is valid
+    if (message == NULL || strlen(message) == 0) {
+        res->message = strdup("NULL");
+    } else {
+        res->message = strdup(message);
+    }
 
+    // make sure size received is valid
+    if (size < 0) {
+        fprintf(stderr, "ERROR: negative data length of %ld is not allowed\n", size);
+        freeResponse(res);
+        return NULL;
+    } else {
+        res->data_len = size;
+    }
+
+    // finally set the success status
+    res->status = success;
     return res;
 }
 
@@ -234,7 +249,9 @@ response_t* deSerializeResponse(const char* buffer) {
             fprintf(stderr, "WARNING: response string has too many fields\n");
         }
 
-        i += 1;
+        // go to the next token
+        token = strtok(NULL, ",");
+        i++;
     }
     free(buffer_cpy);
 
