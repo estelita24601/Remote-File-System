@@ -104,7 +104,7 @@ void printServerAddress() {
 }
 
 /**
- * @brief
+ * @brief tries to execute the write request form the client AND sends a response back to the client
  *
  * @param write_request
  * @param socket_descriptor
@@ -140,6 +140,30 @@ void handleGetRequest(request_t* get_request, const int socket_descriptor) {
     }
 
     sendFileContents(source_path, source_length, socket_descriptor);
+}
+
+/**
+ * @brief tries to execute the remove request from the client AND sends a response
+ *
+ * @param remove_request
+ * @param socket_descriptor
+ */
+void handleRemoveRequest(request_t* remove_request, const int socket_descriptor) {
+    char* filepath = remove_request->remote_path;
+
+    if (strlen(filepath) == 0) {
+        response_t* res = createResponse(false, "didn't receive file path", 0);
+        sendResponse(socket_descriptor, res);
+        freeResponse(res);
+    } else if (remove(filepath) == 0) {
+        response_t* res = createResponse(true, "OK", 0);
+        sendResponse(socket_descriptor, res);
+        freeResponse(res);
+    } else {
+        response_t* res = createResponse(false, "unable to remove file", 0);
+        sendResponse(socket_descriptor, res);
+        freeResponse(res);
+    }
 }
 
 int main(void) {
@@ -215,7 +239,7 @@ int main(void) {
                 handleWriteRequest(client_req, client_socket_descriptor);
                 break;
             case RM:
-                // todo
+                handleRemoveRequest(client_req, client_socket_descriptor);
                 break;
             case GET:
                 handleGetRequest(client_req, client_socket_descriptor);
