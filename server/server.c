@@ -112,7 +112,8 @@ void printServerAddress() {
 void handleWrite(request_t* write_request, const int socket_descriptor) {
     bool status = receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
 
-    response_t* res = createResponse(status, NULL, 0);
+    // todo if time: receiveFileContents() returns a struct that gives us the bool status AND string error message
+    response_t* res = createResponse(status, "", 0);
     sendResponse(socket_descriptor, res);
     freeResponse(res);
 }
@@ -125,13 +126,20 @@ void handleWrite(request_t* write_request, const int socket_descriptor) {
  */
 void handleGet(request_t* get_request, const int socket_descriptor) {
     char* source_path = get_request->remote_path;
-    long source_length;  // todo:
+    long source_length = getFileSize(source_path);
 
-    bool status = sendFileContents(source_path, source_length, socket_descriptor);
+    if (source_length < 0) {
+        response_t* res = createResponse(false, "unable to open and/or get size of the requested file", 0);
+        sendResponse(socket_descriptor, res);
+        freeResponse(res);
+        return;
+    } else {
+        response_t* res = createResponse(true, "OK", source_length);
+        sendResponse(socket_descriptor, res);
+        freeResponse(res);
+    }
 
-    response_t* res = createResponse(status, NULL, source_length);
-    sendResponse(socket_descriptor, res);
-    freeResponse(res);
+    sendFileContents(source_path, source_length, socket_descriptor);
 }
 
 int main(void) {
