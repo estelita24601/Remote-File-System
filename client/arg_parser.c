@@ -1,6 +1,6 @@
 /**
  * @file arg_parser.c
- * @author your name (you@domain.com)
+ * @author Estelita Chen
  * @brief
  * @version 0.1
  * @date 2025-11-24
