@@ -15,8 +15,8 @@
 
 # Question 2 (20 points)
 
-- [ ] implement a command that retrieves a new file from the remote file system and writes the data read from the socket to a local file.
-  - If the local file path or name (the third command line argument) is omitted, use current folder.
+- [x] implement a command that retrieves a new file from the remote file system and writes the data read from the socket to a local file.
+  - [ ] If the local file path or name (the third command line argument) is omitted, use current folder.
   - cl format: `% rfs GET remote_folder/remote_file.html local_folder/local_file.html`
 
 # Question 3 (20 points)

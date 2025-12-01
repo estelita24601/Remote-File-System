@@ -10,7 +10,17 @@
 - [x] serialize response object
 - [x] send response object to client
 - [x] de-serialize response object
-- [] send file contents to client
+- [x] send file contents to client
+- [ ] IMPORTANT: double check instructions for GET command
+  - "If the local file path or name (the third command line argument) is omitted, use current folder."
+  - currently I'm using remote path as the default for the local path
+- [ ] figure out how to get IP address of server
+- [ ] implement RM command
+- [ ] implement multi-threading OR multi-processing
+  - initial thought = threads
+  - then I can just repurpose command handler functions
+- [ ] WRITE command to existing file saves the old version
+  - [ ] function that creates filename for the older versions, need to keep track of v1, v2 etc.
 
 # references
 
