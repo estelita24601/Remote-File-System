@@ -14,8 +14,11 @@
 - [ ] IMPORTANT: double check instructions for GET command
   - "If the local file path or name (the third command line argument) is omitted, use current folder."
   - currently I'm using remote path as the default for the local path
-- [ ] figure out how to get IP address of server
-- [ ] implement RM command
+- [x] figure out how to get IP address of server
+- [ ] handle server shut down
+  - [ ] You turn off the server by killing the process... or you could have another command that stops the server, e.g., rfs STOP -- if the server gets that command it calls exit(0) to exit the process after closing the socket.
+  - [ ] use article he gave us to handle ctrl+c (<https://www.delftstack.com/howto/c/sigint-in-c/>)
+- [x] implement RM command
 - [ ] implement multi-threading OR multi-processing
   - initial thought = threads
   - then I can just repurpose command handler functions
@@ -35,3 +38,4 @@
 <https://www.geeksforgeeks.org/c/c-program-display-hostname-ip-address/#>
 <https://www.man7.org/linux/man-pages/man2/gethostname.2.html>
 <https://thelinuxcode.com/gethostbyname-function-c/>
+<https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry>
