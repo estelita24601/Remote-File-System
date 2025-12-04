@@ -2,9 +2,42 @@
 
 extern file_lock_list* file_lock_manager;
 
-void* threadClientHandler(void* args) {
-    int socket = 0;  // placeholder
-    // pthread_t thread_id;
+request_t* receiveRequest(const int socket_descriptor) {
+    // initialize empty buffer
+    char buffer[MAX_BUFF_SIZE];
+    memset(buffer, '\0', MAX_BUFF_SIZE);
+
+    // try to receive from the client
+    int receiveStatus = recv(socket_descriptor, buffer, MAX_BUFF_SIZE, 0);
+    if (receiveStatus < 0) {
+        fprintf(stderr, "ERROR: couldn't receive data from the client\n");
+        return NULL;
+    }
+    printf("CLIENT REQUEST:\n%s\n", buffer);
+
+    // try to turn what we received into a valid request object
+    request_t* req = deSerializeRequest(buffer);
+    if (req == NULL) {
+        fprintf(stderr, "ERROR: unable to de-serialize '%s' into a valid request object\n", buffer);
+        return NULL;
+    }
+
+    return req;
+}
+
+void logThread(pthread_t thread_id, const char* action, const char* details) {
+    if (details != NULL) {
+        printf("\t[Thread %lu] %s: %s\n", (unsigned long) thread_id, action, details);
+    } else {
+        printf("\t[Thread %lu] %s\n", (unsigned long) thread_id, action);
+    }
+    fflush(stdout);
+}
+
+void* threadClientHandler(void* input) {
+    thread_args_t* args = (thread_args_t*) input;
+    int socket = args->socket_descriptor;
+    pthread_t id = args->thread_id;
 
     request_t* request = receiveRequest(socket);
     if (request == NULL) {
@@ -12,11 +45,13 @@ void* threadClientHandler(void* args) {
         close(socket);
         return NULL;
     }
+    logThread(id, "received request", COMMAND_STRINGS[request->command]);
 
     // get lock node for the file
-    file_lock_node* lockNode = getLockFor(request->filename, file_lock_manager);
+    file_lock_node* lockNode = getLockFor(request->remote_path, file_lock_manager);
     if (lockNode == NULL) {
         buildAndSendResponse(socket, false, 0, "failed to get file lock");
+        logThread(id, "unable to find read/write lock for", request->remote_path);
         close(socket);
         return NULL;
     }
@@ -24,18 +59,30 @@ void* threadClientHandler(void* args) {
     switch (request->command) {
         case WRITE:
             pthread_rwlock_wrlock(&lockNode->lock);
+            logThread(id, "write lock", request->remote_path);
+
             handleWriteRequest(request, socket);
+
             pthread_rwlock_unlock(&lockNode->lock);
+            logThread(id, "unlock", request->remote_path);
             break;
         case RM:
             pthread_rwlock_wrlock(&lockNode->lock);
+            logThread(id, "write lock", request->remote_path);
+
             handleRemoveRequest(request, socket);
+
             pthread_rwlock_unlock(&lockNode->lock);
+            logThread(id, "unlock", request->remote_path);
             break;
         case GET:
             pthread_rwlock_rdlock(&lockNode->lock);
+            logThread(id, "read lock", request->remote_path);
+
             handleGetRequest(request, socket);
+
             pthread_rwlock_unlock(&lockNode->lock);
+            logThread(id, "unlock", request->remote_path);
             break;
         case LS:
             // todo (optional): handleListRequest function
@@ -48,7 +95,26 @@ void* threadClientHandler(void* args) {
     }
 
     close(socket);
+    free(args);
     return NULL;
+}
+
+bool createAndDetachThread(int socket_descriptor) {
+    pthread_t thread_id;
+
+    // try to create args
+    thread_args_t* args = malloc(sizeof(thread_args_t));
+    args->socket_descriptor = socket_descriptor;
+
+    // create thread
+    int status = pthread_create(&thread_id, NULL, threadClientHandler, args);
+    args->thread_id = thread_id;
+
+    // detach thread
+    pthread_detach(thread_id);
+
+    // return status
+    return status == 0;
 }
 
 file_lock_node* createLockNode(const char* filename) {
@@ -64,7 +130,7 @@ file_lock_node* createLockNode(const char* filename) {
     }
 
     node->filename = strdup(filename);
-    node->lock = PTHREAD_RWLOCK_INITIALIZER;
+    pthread_rwlock_init(&node->lock, NULL);
     node->next = NULL;
 
     return node;
@@ -95,7 +161,7 @@ file_lock_list* createFileLockList() {
     lock_list->length = 0;
     lock_list->head_node = NULL;
     lock_list->tail_node = NULL;
-    lock_list->mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_init(&lock_list->mutex, NULL);
     return lock_list;
 }
 

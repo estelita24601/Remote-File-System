@@ -2,17 +2,26 @@
 #define THREAD_MANAGER_H
 
 #include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include "../protocol.h"
+#include "request_handler.h"
 
 typedef struct {
     int socket_descriptor;
     pthread_t thread_id;
 } thread_args_t;
 
-typedef struct {
+typedef struct file_lock_node file_lock_node;
+struct file_lock_node {
     char* filename;
     pthread_rwlock_t lock;
     file_lock_node* next;
-} file_lock_node;
+};
 
 typedef struct {
     int length;
@@ -22,12 +31,38 @@ typedef struct {
 } file_lock_list;
 
 /**
+ * @brief Create a And Detach Thread object
+ *
+ * @param socket_descriptor
+ * @return true
+ * @return false
+ */
+bool createAndDetachThread(int socket_descriptor);
+
+/**
+ * @brief
+ *
+ * @param thread_id
+ * @param action
+ * @param details
+ */
+void logThread(pthread_t thread_id, const char* action, const char* details);
+
+/**
  * @brief - after server has connected to a client this thread handles the rest of the interaction between server and client
  *
- * @param args - will be typecast to thread_args_t that contains the socket descriptor and the thread id
+ * @param input - will be typecast to thread_args_t that contains the socket descriptor and the thread id
  * @return void*
  */
-void* threadClientHandler(void* args);
+void* threadClientHandler(void* input);
+
+/**
+ * @brief
+ *
+ * @param socket_descriptor
+ * @return request_t*
+ */
+request_t* receiveRequest(const int socket_descriptor);
 
 /**
  * @brief Create a Lock Node object

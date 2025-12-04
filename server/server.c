@@ -20,35 +20,10 @@
 #include "../protocol.h"
 #include "../utils.h"
 #include "request_handler.h"
+#include "thread_manager.h"
 
-/**
- * @brief
- *
- * @param socket_descriptor
- * @return request_t*
- */
-request_t* receiveRequest(const int socket_descriptor) {
-    // initialize empty buffer
-    char buffer[MAX_BUFF_SIZE];
-    memset(buffer, '\0', MAX_BUFF_SIZE);
-
-    // try to receive from the client
-    int receiveStatus = recv(socket_descriptor, buffer, MAX_BUFF_SIZE, 0);
-    if (receiveStatus < 0) {
-        fprintf(stderr, "ERROR: couldn't receive data from the client\n");
-        return NULL;
-    }
-    printf("CLIENT REQUEST:\n%s\n", buffer);
-
-    // try to turn what we received into a valid request object
-    request_t* req = deSerializeRequest(buffer);
-    if (req == NULL) {
-        fprintf(stderr, "ERROR: unable to de-serialize '%s' into a valid request object\n", buffer);
-        return NULL;
-    }
-
-    return req;
-}
+// global that is used in thread_manager.c
+file_lock_list* file_lock_manager = NULL;
 
 void printServerAddress() {
     FILE* output = popen("hostname -I | awk '{print $1}'", "r");
@@ -95,6 +70,8 @@ int main(void) {
     }
     printf("\nListening for incoming connections.....\n");
 
+    file_lock_list* file_lock_manager = createFileLockList();
+
     // keep going until server process is terminated
     while (true) {
         // Accept an incoming connection:
@@ -102,53 +79,63 @@ int main(void) {
         socklen_t client_size = sizeof(client_addr);
         struct sockaddr* client_address = (struct sockaddr*) &client_addr;
         int client_socket_descriptor = accept(socket_descriptor, client_address, &client_size);
+
+        // make sure we connected
         if (client_socket_descriptor < 0) {
-            printf("Can't accept\n");
+            fprintf(stderr, "Couldn't accept a connection from the client\n");
             close(socket_descriptor);
             close(client_socket_descriptor);
             return -1;
         }
         printf("\nClient connected at IP: %s and port: %i\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
-        // todo: create thread here
-        // todo: detach thread here
+        // create worker thread for this client
+        bool status = createAndDetachThread(client_socket_descriptor);
 
-        // Receive client's message:
-        request_t* client_req = receiveRequest(client_socket_descriptor);
-        if (client_req == NULL) {
-            // try to tell client that there was a failure
-            buildAndSendResponse(client_socket_descriptor, false, 0, "unable to receive request");
-
-            // give up on this client and wait for the next one
+        // make sure thread was created successfully
+        if (status == false) {
+            buildAndSendResponse(client_socket_descriptor, false, 0, "unable to spawn worker thread for this request");
             close(client_socket_descriptor);
-            continue;
         }
 
-        // handle the request made by the client
-        switch (client_req->command) {
-            case WRITE:
-                handleWriteRequest(client_req, client_socket_descriptor);
-                break;
-            case RM:
-                handleRemoveRequest(client_req, client_socket_descriptor);
-                break;
-            case GET:
-                handleGetRequest(client_req, client_socket_descriptor);
-                break;
-            case LS:
-                buildAndSendResponse(client_socket_descriptor, false, 0, "optional command isn't implemented yet");
-                break;
-            default:
-                buildAndSendResponse(client_socket_descriptor, false, 0, "didn't receive valid command");
-                break;
-        }
-        freeRequest(client_req);
+        // // Receive client's message:
+        // request_t* client_req = receiveRequest(client_socket_descriptor);
+        // if (client_req == NULL) {
+        //     // try to tell client that there was a failure
+        //     buildAndSendResponse(client_socket_descriptor, false, 0, "unable to receive request");
 
-        // close client socket now that we're finished with this client
-        close(client_socket_descriptor);
+        //     // give up on this client and wait for the next one
+        //     close(client_socket_descriptor);
+        //     continue;
+        // }
+
+        // // handle the request made by the client
+        // switch (client_req->command) {
+        //     case WRITE:
+        //         handleWriteRequest(client_req, client_socket_descriptor);
+        //         break;
+        //     case RM:
+        //         handleRemoveRequest(client_req, client_socket_descriptor);
+        //         break;
+        //     case GET:
+        //         handleGetRequest(client_req, client_socket_descriptor);
+        //         break;
+        //     case LS:
+        //         buildAndSendResponse(client_socket_descriptor, false, 0, "optional command isn't implemented yet");
+        //         break;
+        //     default:
+        //         buildAndSendResponse(client_socket_descriptor, false, 0, "didn't receive valid command");
+        //         break;
+        // }
+        // freeRequest(client_req);
+
+        // // close client socket now that we're finished with this client
+        // close(client_socket_descriptor);
     }
 
-    // close socket for this server
+    // server cleanup
     close(socket_descriptor);
+    freeFileLockList(file_lock_manager);
+
     return 0;
 }
