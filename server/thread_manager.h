@@ -6,19 +6,20 @@
 typedef struct {
     int socket_descriptor;
     pthread_t thread_id;
-}thread_args_t;
+} thread_args_t;
 
-typedef struct{
+typedef struct {
     char* filename;
     pthread_rwlock_t lock;
     file_lock_node* next;
-}file_lock_node;
+} file_lock_node;
 
-typedef struct{
+typedef struct {
     int length;
     file_lock_node* head_node;
-    pthread_mutex_t list_mutex;
-}file_lock_manager;
+    file_lock_node* tail_node;
+    pthread_mutex_t mutex;
+} file_lock_list;
 
 /**
  * @brief - after server has connected to a client this thread handles the rest of the interaction between server and client
@@ -46,9 +47,17 @@ void freeLockNode(file_lock_node* node);
 /**
  * @brief Create a File Lock Manager object
  *
- * @return file_lock_manager*
+ * @return file_lock_list*
  */
-file_lock_manager* createFileLockManager();
+file_lock_list* createFileLockList();
+
+/**
+ * @brief
+ *
+ * @param new_lock
+ * @param lock_list
+ */
+void addLockToList(file_lock_node* new_lock, file_lock_list* lock_list);
 
 /**
  * @brief Get the Lock For object
@@ -57,13 +66,13 @@ file_lock_manager* createFileLockManager();
  * @param lock_list
  * @return file_lock_node*
  */
-file_lock_node* getLockFor(const char* filename, file_lock_manager* lock_list);
+file_lock_node* getLockFor(const char* filename, file_lock_list* lock_list);
 
 /**
  * @brief
  *
  * @param lock_list
  */
-void freeFileLockManager(file_lock_manager* lock_list);
+void freeFileLockList(file_lock_list* lock_list);
 
 #endif
