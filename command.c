@@ -46,20 +46,28 @@ command_type strToCommandType(const char* str) {
     return UNKNOWN;
 }
 
+char* formatPath(const char* str) {
+    char* path = malloc(sizeof(char) * (strlen(PATH_FORMAT) + strlen(str)));
+    sprintf(path, PATH_FORMAT, str);
+    return path;
+}
+
 command_t* createCommandStruct(command_type type, const char* ip_address, const char* local, const char* remote) {
+    if (ip_address == NULL) {
+        fprintf(stderr, "ERROR: can't create command struct without a server ip_address");
+        return NULL;
+    }
+
     command_t* cmd = malloc(sizeof(command_t));
     if (cmd == NULL) {
-        printf("ERROR: unable to allocate memory for command_t struct");
+        fprintf(stderr, "ERROR: unable to allocate memory for command_t struct");
         exit(1);
     }
 
     cmd->c_type = type;
-
     cmd->server_ip = strdup(ip_address);
-
-    cmd->local_path = strdup(local);
-
-    cmd->remote_path = strdup(remote);
+    cmd->local_path = formatPath(local);
+    cmd->remote_path = formatPath(remote);
 
     return cmd;
 }

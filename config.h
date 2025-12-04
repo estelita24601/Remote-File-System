@@ -15,8 +15,10 @@
 #define PORT 8080
 
 #define MAX_BUFF_SIZE 2000
+#define MAX_PATH_LEN 260
+#define PATH_FORMAT "data/%s"
 
-// reference: chatgpt
+// if the make command defines debug mode then we'll print the debug messages
 #define DEBUG_MODE
 #ifdef DEBUG_MODE
 #define debug(fmt, ...) printf(fmt, ##__VA_ARGS__)

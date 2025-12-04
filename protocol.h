@@ -49,6 +49,29 @@ char* serializeResponse(response_t* res);
 
 response_t* deSerializeResponse(const char* buffer);
 
+/**
+ * @brief
+ *
+ * @param socket_descriptor int - where to send the response
+ * @param res response_t* - what we want to send
+ * @return true - if successfully able to send the response to the client
+ * @return false - if unable to send the response to the client (will still try to send a plain string error message to
+ *the client)
+ */
+bool sendResponse(const int socket_descriptor, response_t* res);
+
+/**
+ * @brief - given all the response parameters it will create the response_t struct for you and free it after its finished
+ *
+ * @param socket_descriptor - where to send the response
+ * @param response_status - bool for if request fulfillment was successful
+ * @param response_len - long for how many bytes of data to expect AFTER this response is sent
+ * @param response_message - char*
+ * @return true - if successfully able to build and send response to the socket
+ * @return false - otherwise
+ */
+bool buildAndSendResponse(const int socket_descriptor, bool response_status, long response_len, const char* response_message);
+
 void freeResponse(response_t* res);
 
 #endif

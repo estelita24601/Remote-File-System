@@ -260,6 +260,41 @@ response_t* deSerializeResponse(const char* buffer) {
     }
 }
 
+bool sendResponse(const int socket_descriptor, response_t* res) {
+    if (res == NULL) {
+        char errorMessage[] = "ERROR: tried to send NULL response";
+        send(socket_descriptor, errorMessage, sizeof(errorMessage), 0);
+        return false;
+    }
+
+    // serialize response object
+    char* response_str = serializeResponse(res);
+    if (response_str == NULL) {
+        char errorMessage[] = "ERROR: unable to serialize response object";
+        send(socket_descriptor, errorMessage, sizeof(errorMessage), 0);
+        return false;
+    }
+
+    // try to send to client
+    int sendStatus = send(socket_descriptor, response_str, strlen(response_str), 0);
+    if (sendStatus < 0) {
+        char errorMessage[] = "ERROR: unable to send serialized response to the client";
+        send(socket_descriptor, errorMessage, sizeof(errorMessage), 0);
+        return false;
+    }
+
+    free(response_str);
+    return true;
+}
+
+bool buildAndSendResponse(const int socket_descriptor, bool response_status, long response_len, const char* response_message) {
+    response_t* res = createResponse(response_status, response_message, response_len);
+    bool status = sendResponse(socket_descriptor, res);
+
+    freeResponse(res);
+    return status;
+}
+
 void freeResponse(response_t* res) {
     if (res == NULL) {
         return;

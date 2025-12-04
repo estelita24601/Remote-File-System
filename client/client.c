@@ -109,7 +109,6 @@ int main(int argc, char* argv[]) {
     // try to connect to the server
     struct sockaddr* socket_address = (struct sockaddr*) &server_address;
     int status = connect(socket_descriptor, socket_address, sizeof(server_address));
-    // fixme: never gets here
     if (status < 0) {
         printf("ERROR: unable to connect to server\n");
         close(socket_descriptor);

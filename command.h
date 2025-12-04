@@ -45,6 +45,14 @@ bool equals(const char* a, const char* b);
 command_type strToCommandType(const char* str);
 
 /**
+ * @brief
+ *
+ * @param str
+ * @return char*
+ */
+char* formatPath(const char* str);
+
+/**
  * @brief Create a Command Struct object
  *
  * @param type command_type enum WRITE, GET, RM, LS, or UNKNOWN
