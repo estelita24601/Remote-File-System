@@ -39,7 +39,7 @@ bool sendFileContents(const char* source_file, const long file_size, const int s
     char buffer[MAX_BUFF_SIZE];
     memset(buffer, '\0', sizeof(buffer));
 
-    debug("sendFileContents()\n");
+    debug("sendFileContents() ");
     while (true) {
         debug("- ");  // just to see how many times the loop iterates
 
@@ -91,8 +91,7 @@ bool receiveFileContents(const char* destination_file, const long file_size, con
         // if there was an error then update return status
         if (bytes_written < 0 || bytes_written != bytes_received) {
             success = false;
-            fprintf(stderr, "WARNING: received %d bytes and wrote %d bytes to the file\n", bytes_received,
-                    bytes_written);
+            fprintf(stderr, "WARNING: received %d bytes and wrote %d bytes to the file\n", bytes_received, bytes_written);
         }
 
         // decrement file size

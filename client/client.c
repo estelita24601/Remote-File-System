@@ -62,11 +62,11 @@ void sendRequest(command_t* command, const int socket_descriptor) {
 
 void displayServerResponse(response_t* response) {
     if (response->status == true) {
-        printf("SUCCESS\n");
+        printf("\nSUCCESS\n");
     } else if (equals(response->message, "NULL") || equals(response->message, "")) {
-        printf("ENCOUNTERED UNKNOWN ERROR(S)\n");
+        printf("\nENCOUNTERED UNKNOWN ERROR(S)\n");
     } else {
-        printf("ENCOUNTERED ERROR(S) - %s\n", response->message);
+        printf("\nENCOUNTERED ERROR(S) - %s\n", response->message);
     }
 
     if (response->data_len != 0) {
