@@ -23,7 +23,7 @@
 #include "thread_manager.h"
 
 // global that is used in thread_manager.c
-file_lock_list* file_lock_manager = NULL;
+file_lock_list* file_lock_manager;
 
 void printServerAddress() {
     FILE* output = popen("hostname -I | awk '{print $1}'", "r");
@@ -70,7 +70,7 @@ int main(void) {
     }
     printf("\nListening for incoming connections.....\n");
 
-    file_lock_list* file_lock_manager = createFileLockList();
+    file_lock_manager = createFileLockList();
 
     // keep going until server process is terminated
     while (true) {
