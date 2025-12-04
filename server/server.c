@@ -50,60 +50,6 @@ request_t* receiveRequest(const int socket_descriptor) {
     return req;
 }
 
-// /**
-//  * @brief
-//  *
-//  * @param socket_descriptor int - where to send the response
-//  * @param res response_t* - what we want to send
-//  * @return true - if successfully able to send the response to the client
-//  * @return false - if unable to send the response to the client (will still try to send a plain string error message to
-//  *the client)
-//  */
-// bool sendResponse(const int socket_descriptor, response_t* res) {
-//     if (res == NULL) {
-//         char errorMessage[] = "ERROR: tried to send NULL response";
-//         send(socket_descriptor, errorMessage, sizeof(errorMessage), 0);
-//         return false;
-//     }
-
-//     // serialize response object
-//     char* response_str = serializeResponse(res);
-//     if (response_str == NULL) {
-//         char errorMessage[] = "ERROR: unable to serialize response object";
-//         send(socket_descriptor, errorMessage, sizeof(errorMessage), 0);
-//         return false;
-//     }
-
-//     // try to send to client
-//     int sendStatus = send(socket_descriptor, response_str, strlen(response_str), 0);
-//     if (sendStatus < 0) {
-//         char errorMessage[] = "ERROR: unable to send serialized response to the client";
-//         send(socket_descriptor, errorMessage, sizeof(errorMessage), 0);
-//         return false;
-//     }
-
-//     free(response_str);
-//     return true;
-// }
-
-// /**
-//  * @brief - given all the response parameters it will create the response_t struct for you and free it after its finished
-//  *
-//  * @param socket_descriptor - where to send the response
-//  * @param response_status - bool for if request fulfillment was successful
-//  * @param response_len - long for how many bytes of data to expect AFTER this response is sent
-//  * @param response_message - char*
-//  * @return true - if successfully able to build and send response to the socket
-//  * @return false - otherwise
-//  */
-// bool buildAndSendResponse(const int socket_descriptor, bool response_status, long response_len, const char* response_message) {
-//     response_t* res = createResponse(response_status, response_message, response_len);
-//     bool status = sendResponse(socket_descriptor, res);
-
-//     freeResponse(res);
-//     return status;
-// }
-
 void printServerAddress() {
     FILE* output = popen("hostname -I | awk '{print $1}'", "r");
 
@@ -112,92 +58,6 @@ void printServerAddress() {
     pclose(output);
 
     printf("SERVER IP = %s\n", buffer);
-}
-
-// /**
-//  * @brief tries to execute the write request form the client AND sends a response back to the client
-//  *
-//  * @param write_request
-//  * @param socket_descriptor
-//  */
-// void handleWriteRequest(request_t* write_request, const int socket_descriptor) {
-//     bool status = receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
-
-//     // todo if time: receiveFileContents() returns a struct that gives us the bool status AND string error message
-
-//     buildAndSendResponse(socket_descriptor, status, 0, "");
-// }
-
-// /**
-//  * @brief
-//  *
-//  * @param get_request
-//  * @param socket_descriptor
-//  */
-// void handleGetRequest(request_t* get_request, const int socket_descriptor) {
-//     char* source_path = get_request->remote_path;
-//     long source_length = getFileSize(source_path);
-
-//     if (source_length < 0) {
-//         buildAndSendResponse(socket_descriptor, false, 0, "unable to open and/or get size of the requested file");
-//         return;
-//     } else {
-//         buildAndSendResponse(socket_descriptor, true, source_length, "OK");
-//     }
-
-//     sendFileContents(source_path, source_length, socket_descriptor);
-// }
-
-// /**
-//  * @brief tries to execute the remove request from the client AND sends a response
-//  *
-//  * @param remove_request
-//  * @param socket_descriptor
-//  */
-// void handleRemoveRequest(request_t* remove_request, const int socket_descriptor) {
-//     char* filepath = remove_request->remote_path;
-
-//     if (strlen(filepath) == 0) {
-//         buildAndSendResponse(socket_descriptor, false, 0, "didn't receive file path");
-//     } else if (remove(filepath) == 0) {
-//         buildAndSendResponse(socket_descriptor, true, 0, "OK");
-//     } else {
-//         buildAndSendResponse(socket_descriptor, false, 0, "unable to remove file");
-//     }
-// }
-
-void* threadClientHandler(void* args) {
-    int socket = 0;  // placeholder
-    // pthread_t thread_id;
-
-    request_t* request = receiveRequest(socket);
-    if (request == NULL) {
-        buildAndSendResponse(socket, false, 0, "unable to receive request");
-        close(socket);
-        return NULL;
-    }
-
-    switch (request->command) {
-        case WRITE:
-            handleWriteRequest(request, socket);
-            break;
-        case RM:
-            handleRemoveRequest(request, socket);
-            break;
-        case GET:
-            handleGetRequest(request, socket);
-            break;
-        case LS:
-            // todo (optional): handleListRequest function
-            buildAndSendResponse(socket, false, 0, "optional command isn't implemented yet");
-            break;
-        default:
-            buildAndSendResponse(socket, false, 0, "didn't receive valid command");
-            break;
-    }
-
-    close(socket);
-    return NULL;
 }
 
 int main(void) {
@@ -248,9 +108,10 @@ int main(void) {
             close(client_socket_descriptor);
             return -1;
         }
-        printf("Client connected at IP: %s and port: %i\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+        printf("\nClient connected at IP: %s and port: %i\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
         // todo: create thread here
+        // todo: detach thread here
 
         // Receive client's message:
         request_t* client_req = receiveRequest(client_socket_descriptor);
@@ -275,7 +136,6 @@ int main(void) {
                 handleGetRequest(client_req, client_socket_descriptor);
                 break;
             case LS:
-                // todo (optional): handleListRequest function
                 buildAndSendResponse(client_socket_descriptor, false, 0, "optional command isn't implemented yet");
                 break;
             default:
