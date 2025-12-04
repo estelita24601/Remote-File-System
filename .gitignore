@@ -62,3 +62,6 @@ dkms.conf
 client/rfs
 server/rfs_server
 tests/rfs_test
+
+# server files
+server/data/*
