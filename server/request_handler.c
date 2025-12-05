@@ -40,9 +40,6 @@ bool saveCurrentVersion(const char* filepath) {
     strcpy(version_directory, directory_only);
     strcat(version_directory, "/.versions");  // todo: put this into config.h
 
-    // make sure that folder exists
-    createNestedDirectories(version_directory);
-
     // create the full path where we'll be saving the current version
     char* version_filename = createVersionName(basename_only);
     char full_path[MAX_PATH_LEN];
@@ -50,6 +47,9 @@ bool saveCurrentVersion(const char* filepath) {
     strcat(full_path, "/");
     strcat(full_path, version_filename);
     free(version_filename);
+
+    // make sure that nested folders for path exists
+    createNestedDirectories(full_path);
 
     // copy contents from original file over to this version file
     FILE* newFile = fopen(full_path, "wb");
