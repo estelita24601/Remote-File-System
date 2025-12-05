@@ -46,7 +46,7 @@ bool saveCurrentVersion(const char* filepath) {
     // this is where current version will be saved
     char version_directory[MAX_PATH_LEN];
     strcpy(version_directory, directory_only);
-    strcat(version_directory, "/.versions");  // todo: put this into config.h
+    strcat(version_directory, VERSION_SUBFOLDER);  // todo: put this into config.h
 
     // create the full path where we'll be saving the current version
     char* version_filename = makeVersionName(basename_only);
@@ -117,7 +117,7 @@ void handleRemoveRequest(request_t* remove_request, const int socket_descriptor)
     // get path to directory containing version history
     char version_folder[MAX_PATH_LEN];
     strcpy(version_folder, directory_only);
-    strcat(version_folder, "/.versions");
+    strcat(version_folder, VERSION_SUBFOLDER);
 
     // open folder containing version history
     DIR* dir = opendir(version_folder);
@@ -139,7 +139,9 @@ void handleRemoveRequest(request_t* remove_request, const int socket_descriptor)
         // does it have the same basename just with the timestamp appended?
         if (strncmp(entry->d_name, basename_only, strlen(basename_only)) == 0) {
             char full_version_path[MAX_PATH_LEN];
-            sprintf(full_version_path, "%s/%s", version_folder, entry->d_name);
+            strcpy(full_version_path, version_folder);
+            strcat(full_version_path, "/");
+            strcat(full_version_path, entry->d_name);
             debug("remove(%s)\n", full_version_path);
             success = success && (remove(full_version_path) == 0);
         }
