@@ -13,7 +13,7 @@ request_t* receiveRequest(const int socket_descriptor) {
         fprintf(stderr, "ERROR: couldn't receive data from the client\n");
         return NULL;
     }
-    printf("CLIENT REQUEST:\n%s\n", buffer);
+    debug("CLIENT REQUEST:\n%s\n", buffer);
 
     // try to turn what we received into a valid request object
     request_t* req = deSerializeRequest(buffer);

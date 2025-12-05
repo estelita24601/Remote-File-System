@@ -97,14 +97,14 @@ int main(int argc, char* argv[]) {
         close(socket_descriptor);
         return -1;
     }
-    printf("Socket created successfully\n");
+    debug("Socket created successfully\n");
 
     // set up the struct for the server address
     struct sockaddr_in server_address;
     server_address.sin_family = AF_INET;
     server_address.sin_port = htons(PORT);
     server_address.sin_addr.s_addr = inet_addr(command->server_ip);
-    printf("trying to connect to server with IP %s at port %d\n", command->server_ip, PORT);
+    debug("trying to connect to server with IP %s at port %d\n", command->server_ip, PORT);
 
     // try to connect to the server
     struct sockaddr* socket_address = (struct sockaddr*) &server_address;
@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
         close(socket_descriptor);
         return -1;
     } else {
-        printf("Connected with server successfully\n");
+        printf("successfully connected to %s at port %d\n", command->server_ip, PORT);
     }
 
     sendRequest(command, socket_descriptor);

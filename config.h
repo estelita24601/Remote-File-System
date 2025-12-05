@@ -19,7 +19,7 @@
 #define PATH_FORMAT "data/%s"
 
 // if the make command defines debug mode then we'll print the debug messages
-#define DEBUG_MODE
+// source: chatgpt
 #ifdef DEBUG_MODE
 #define debug(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #else

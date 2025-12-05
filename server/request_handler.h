@@ -12,8 +12,8 @@
 /**
  * @brief tries to execute the write request form the client AND sends a response back to the client
  *
- * @param write_request
- * @param socket_descriptor
+ * @param write_request - request object with the info we need to write a file from the client
+ * @param socket_descriptor - connection to the client
  */
 void handleWriteRequest(request_t* write_request, const int socket_descriptor);
 
