@@ -51,8 +51,10 @@ bool sendFileContents(const char* source_file, const long file_size, const int s
     memset(buffer, '\0', sizeof(buffer));
 
     printf("sending file contents ");
+    fflush(stdout);
     while (true) {
-        printf("- ");  // just to see how many times the loop iterates
+        printf("-");  // just to see how many times the loop iterates
+        fflush(stdout);
 
         // put file contents into the buffer
         size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, file);
@@ -70,6 +72,8 @@ bool sendFileContents(const char* source_file, const long file_size, const int s
             break;
         }
     }
+    printf("\n");
+    fflush(stdout);
 
     fclose(file);
     return true;
@@ -141,8 +145,10 @@ bool receiveFileContents(const char* destination_file, const long file_size, con
     // loop until we're done receiving data
     long remaining = file_size;
     printf("receiving file contents ");
+    fflush(stdout);
     while (remaining > 0) {
-        printf("- ");
+        printf("-");
+        fflush(stdout);
         int bytes_received = recv(socket_descriptor, buffer, sizeof(buffer), 0);
         if (bytes_received < 0) {
             break;
@@ -159,6 +165,8 @@ bool receiveFileContents(const char* destination_file, const long file_size, con
         // decrement file size
         remaining -= bytes_received;
     }
+    printf("\n");
+    fflush(stdout);
 
     fclose(file);
     return success;
