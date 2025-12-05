@@ -44,6 +44,14 @@ int main(void) {
     }
     printf("Socket created successfully\n");
 
+    // source: claud ai
+    // set a socket option so the port can be re-used immediately
+    // fixed an issue when restarting server in quick succession during testing
+    int opt = 1;
+    if (setsockopt(socket_descriptor, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        perror("setsockopt failed");
+    }
+
     // set up the struct for the server address
     struct sockaddr_in server_address;
     server_address.sin_family = AF_INET;
