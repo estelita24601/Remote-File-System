@@ -125,12 +125,55 @@ bool extractBasename(const char* path, char* buffer) {
     return true;
 }
 
-bool createNestedDirectories(const char* full_dirname) { return false; }
+bool createNestedDirectories(const char* full_path) {
+    // just look at the folders, remove the filename
+    char directory_only[MAX_PATH_LEN];
+    if (!extractDirectory(full_path, directory_only)) {
+        fprintf(stderr, "unable to create nested directories for %s\n", full_path);
+        return false;
+    }
+
+    // see if it already exists so we can end early
+    DIR* directory = opendir(directory_only);
+    if (directory != NULL) {
+        closedir(directory);
+        return true;
+    }
+
+    // one or more nested folders don't exist so work our way up
+    char curr_directory[MAX_PATH_LEN] = "";
+    char* token = strtok(directory_only, "/");
+    while (token != NULL) {
+        // append to current directory
+        if (strlen(curr_directory) == 0) {
+            // first directory in the nested directories
+            strcpy(curr_directory, token);
+        } else {
+            strcat(curr_directory, "/");
+            strcat(curr_directory, token);
+        }
+
+        // try to create current directory
+        int status = mkdir(curr_directory, 0755);  // permissions = rwxr-xr-x
+        if (status != 0) {
+            // if the file already exists then its fine, anything else and we need to stop
+            if (errno != EEXIST) {
+                fprintf(stderr, "ERROR: unable to create directory %s\n", curr_directory);
+                return false;
+            }
+        }
+
+        // go to next nested folder
+        token = strtok(NULL, "/");
+    }
+
+    return true;
+}
 
 // todo: rename args so destination_file is destination_path
-bool receiveFileContents(const char* destination_file, const long file_size, const int socket_descriptor) {
+bool receiveFileContents(const char* destination_path, const long file_size, const int socket_descriptor) {
     // try to open the file they asked us to write to
-    FILE* file = fopen(destination_file, "wb");
+    FILE* file = fopen(destination_path, "wb");
     if (file == NULL) {
         return false;
     }

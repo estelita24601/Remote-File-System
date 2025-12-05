@@ -4,11 +4,14 @@
 #define UTILS_H
 
 #include <arpa/inet.h>
+#include <dirent.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "config.h"
@@ -86,26 +89,26 @@ bool extractBasename(const char* path, char* buffer);
  * @brief if necessary creates nested directories to put the file into
  *
  * Example:
- * "data/nestedA/nestedB/myfile.txt"
+ * full_path = "data/nestedA/nestedB/myfile.txt"
  * mkdir(data)
  * mkdir(data/nestedA)
  * mkdir(data/nestedA/nestedB)
  *
- * @param full_dirname const char* - full path for the file
+ * @param full_path const char* - full path for the file
  * @return true - on success
  * @return false - on failure
  */
-bool createNestedDirectories(const char* full_dirname);
+bool createNestedDirectories(const char* full_path);
 
 /**
  * @brief receive data from the socket and write it to the file
  *
- * @param destination_file const char* - where to save the data received from the socket
+ * @param destination_path const char* - where to save the data received from the socket
  * @param file_size long - number of bytes we expect to receive from the socket
  * @param socket_descriptor const int - socket handle
  * @return true - on success
  * @return false - on failure
  */
-bool receiveFileContents(const char* destination_file, const long file_size, const int socket_descriptor);
+bool receiveFileContents(const char* destination_path, const long file_size, const int socket_descriptor);
 
 #endif
