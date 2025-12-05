@@ -39,9 +39,9 @@ bool sendFileContents(const char* source_file, const long file_size, const int s
     char buffer[MAX_BUFF_SIZE];
     memset(buffer, '\0', sizeof(buffer));
 
-    debug("sendFileContents() ");
+    printf("sending file contents ");
     while (true) {
-        debug("- ");  // just to see how many times the loop iterates
+        printf("- ");  // just to see how many times the loop iterates
 
         // put file contents into the buffer
         size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, file);
@@ -63,7 +63,21 @@ bool sendFileContents(const char* source_file, const long file_size, const int s
     fclose(file);
     return true;
 }
+// todo: add this to header
+char* extractDirectory(const char* path) { return NULL; }
 
+// todo: add this to header
+char* extractBasename(const char* path) { return NULL; }
+
+// todo: add this to header
+char* extractFileStem(const char* basename) { return NULL; }
+
+// todo: add this to header
+char* extractFileExtension(const char* basename) { return NULL; }
+
+// todo: handle destination_file that has nested directories that don't exist yet
+// todo: split directory by '/' and recursively use mkdir()
+// todo: rename args so destination_file is destination_path
 bool receiveFileContents(const char* destination_file, const long file_size, const int socket_descriptor) {
     // try to open the file they asked us to write to
     FILE* file = fopen(destination_file, "wb");
@@ -80,7 +94,9 @@ bool receiveFileContents(const char* destination_file, const long file_size, con
     // receive data from socket and immediately write it to the file
     // loop until we're done receiving data
     long remaining = file_size;
+    printf("receiving file contents ");
     while (remaining > 0) {
+        printf("- ");
         int bytes_received = recv(socket_descriptor, buffer, sizeof(buffer), 0);
         if (bytes_received < 0) {
             break;

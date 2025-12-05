@@ -1,10 +1,34 @@
 #include "request_handler.h"
 
+// todo: add this to header
+bool saveCurrentVersion(const char* filepath) {
+    return true;
+    // 0th make sure the file we're trying to save the curr version of even exists
+
+    // 1st extract directory and basename from the path we're writing to
+
+    // 2nd make sure ./version exists inside of the directory using mkdir()
+
+    // 3rd open ./version with opendir()
+
+    // 4th figure out name to save current version under
+    // maybe turn this 4th step into its own helper?
+    // loop with readdir()
+    //      compare current dir entry to VERSION_FILENAME_FORMAT
+    //      keep track of highest version number found for this basename
+    // create time stamp
+    // use highest version number + 1 and the timestamp to make the filename
+
+    // 5th copy over contents from filepath to the new filepath we made for this version
+}
+
 void handleWriteRequest(request_t* write_request, const int socket_descriptor) {
-    bool status = receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
+    bool status;
+    status = saveCurrentVersion(write_request->remote_path);
 
-    // todo if time: receiveFileContents() returns a struct that gives us the bool status AND string error message
+    status = status && receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
 
+    // todo: if time figure out how to get better or more descriptive error message for the response
     buildAndSendResponse(socket_descriptor, status, 0, "");
 }
 
