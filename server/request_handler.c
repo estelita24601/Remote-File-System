@@ -9,7 +9,7 @@
 
 #include "request_handler.h"
 
-char* createVersionName(const char* basename) {
+char* makeVersionName(const char* basename) {
     // SIMPLE_VERSION_FORMAT "%s.%ld"  // basename.timestamp_microseconds
     char* versionName = malloc(sizeof(char) * MAX_PATH_LEN);
 
@@ -49,7 +49,7 @@ bool saveCurrentVersion(const char* filepath) {
     strcat(version_directory, "/.versions");  // todo: put this into config.h
 
     // create the full path where we'll be saving the current version
-    char* version_filename = createVersionName(basename_only);
+    char* version_filename = makeVersionName(basename_only);
     char full_path[MAX_PATH_LEN];
     strcpy(full_path, version_directory);
     strcat(full_path, "/");
@@ -94,12 +94,61 @@ void handleGetRequest(request_t* get_request, const int socket_descriptor) {
 
 void handleRemoveRequest(request_t* remove_request, const int socket_descriptor) {
     char* filepath = remove_request->remote_path;
-
     if (strlen(filepath) == 0) {
         buildAndSendResponse(socket_descriptor, false, 0, "didn't receive file path");
-    } else if (remove(filepath) == 0) {
+        return;
+    }
+
+    // first remove the normal version of this file
+    if (remove(filepath) != 0) {
+        buildAndSendResponse(socket_descriptor, false, 0, "unable to remove file");
+        return;
+    }
+
+    // split remote path into directory and basename
+    char directory_only[MAX_PATH_LEN];
+    char basename_only[MAX_PATH_LEN];
+    if (!extractDirectory(filepath, directory_only) || !extractBasename(filepath, basename_only)) {
+        fprintf(stderr, "ERROR: unable to separate %s into a directory and basename\n", filepath);
+        buildAndSendResponse(socket_descriptor, false, 0, "unable to remove file version history");
+        return;
+    }
+
+    // get path to directory containing version history
+    char version_folder[MAX_PATH_LEN];
+    strcpy(version_folder, directory_only);
+    strcat(version_folder, "/.versions");
+
+    // open folder containing version history
+    DIR* dir = opendir(version_folder);
+    if (dir == NULL) {
+        // version history doesn't exist so there's nothing else to delete
+        buildAndSendResponse(socket_descriptor, true, 0, "OK");
+        return;
+    }
+
+    bool success = true;
+
+    // go through each entry in the version folder
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_type != DT_REG) {
+            continue;  // this isn't even a file
+        }
+
+        // does it have the same basename just with the timestamp appended?
+        if (strncmp(entry->d_name, basename_only, strlen(basename_only)) == 0) {
+            char full_version_path[MAX_PATH_LEN];
+            sprintf(full_version_path, "%s/%s", version_folder, entry->d_name);
+            debug("remove(%s)\n", full_version_path);
+            success = success && (remove(full_version_path) == 0);
+        }
+    }
+    closedir(dir);
+
+    if (success) {
         buildAndSendResponse(socket_descriptor, true, 0, "OK");
     } else {
-        buildAndSendResponse(socket_descriptor, false, 0, "unable to remove file");
+        buildAndSendResponse(socket_descriptor, false, 0, "ERROR: unable to remove all prior versions of this file");
     }
 }

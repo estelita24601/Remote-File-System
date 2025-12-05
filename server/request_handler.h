@@ -21,7 +21,7 @@
 #include "../utils.h"
 
 // todo: documentation
-char* createVersionName(const char* basename);
+char* makeVersionName(const char* basename);
 
 /**
  * @brief before writing to a file that already exists save its current contents elsewhere before we overwrite it
