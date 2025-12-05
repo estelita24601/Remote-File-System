@@ -27,8 +27,16 @@ long getFileSize(const char* file_path) {
     return file_size;
 }
 
-// todo: add to header file
-bool copyFile(const char* source, const char* destination) { return false; }
+bool copyFile(const char* source, const char* destination) {
+    if (source == NULL) {
+        fprintf(stderr, "ERROR: can't copy file because source filepath is NULL\n");
+        return false;
+    } else if (destination == NULL) {
+        fprintf(stderr, "ERROR: can't copy file because destination filepath is NULL\n");
+        return false;
+    }
+    return false;
+}
 
 bool sendFileContents(const char* source_file, const long file_size, const int socket_descriptor) {
     // try to open file we were given
@@ -67,23 +75,56 @@ bool sendFileContents(const char* source_file, const long file_size, const int s
     return true;
 }
 
-// todo: add this to header
-bool extractDirectory(const char* path, const char* buffer) { return false; }
+bool extractDirectory(const char* path, char* buffer) {
+    if (path == NULL || strlen(path) == 0) {
+        fprintf(stderr, "WARNING: can't extract directory from a non-existent path\n");
+        return false;
+    } else if (buffer == NULL) {
+        fprintf(stderr, "WARNING: destination buffer for directory is NULL\n");
+        return false;
+    }
 
-// todo: add this to header
-bool extractBasename(const char* path, const char* buffer) { return false; }
+    strcpy(buffer, path);
+    char* lastSlash = strrchr(path, '/');
+    if (lastSlash != NULL) {
+        // everything BEFORE the last instance of /
+        // so null terminate at the slash
+        *lastSlash = '\0';
+    } else {
+        // No slash found means entire path is the basename
+        buffer[0] = '\0';
+    }
 
-// todo: add this to header
-bool extractFileStem(const char* basename, const char* buffer) { return false; }
+    return true;
+}
 
-// todo: add this to header
-bool extractFileExtension(const char* basename, const char* buffer) { return false; }
+bool extractBasename(const char* path, char* buffer) {
+    if (path == NULL || strlen(path) == 0) {
+        fprintf(stderr, "WARNING: can't extract basename from a non-existent path\n");
+        return false;
+    } else if (buffer == NULL) {
+        fprintf(stderr, "WARNING: destination buffer for file basename is NULL\n");
+        return false;
+    }
+
+    // Find the last instance of '/'
+    char* lastSlash = strrchr(path, '/');
+
+    if (lastSlash != NULL) {
+        // Everything AFTER the last slash
+        strcpy(buffer, lastSlash + 1);
+    } else {
+        // No slash found means entire path is the basename
+        strcpy(buffer, path);
+    }
+
+    return true;
+}
+
+bool createNestedDirectories(const char* full_dirname) { return false; }
 
 // todo: rename args so destination_file is destination_path
 bool receiveFileContents(const char* destination_file, const long file_size, const int socket_descriptor) {
-    // todo: handle destination_file that has nested directories that don't exist yet
-    // todo: split directory by '/' and recursively use mkdir()
-
     // try to open the file they asked us to write to
     FILE* file = fopen(destination_file, "wb");
     if (file == NULL) {

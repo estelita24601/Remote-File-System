@@ -26,13 +26,86 @@ bool equals(const char* a, const char* b);
 /**
  * @brief Get the number of bytes in the file
  *
- * @param file_path const char*
+ * @param file_path const char* - path to the file
  * @return long - number of bytes in the file given or if an error was encountered returns -1
  */
 long getFileSize(const char* file_path);
 
+/**
+ * @brief copy the contents from one file to the other
+ *
+ * @param source const char* - path for the file that is the source of the content
+ * @param destination const char* - path for the file that we're copying the content over to
+ * @return true - on success
+ * @return false - on failure
+ */
+bool copyFile(const char* source, const char* destination);
+
+/**
+ * @brief send contents of the source file to the socket
+ *
+ * @param source_file const char* - path to the file we want to send
+ * @param file_size long - number of bytes in the file we're sending
+ * @param socket_descriptor const int - handle for the socket
+ * @return true - on success
+ * @return false - on failure
+ */
 bool sendFileContents(const char* source_file, const long file_size, const int socket_descriptor);
 
+/**
+ * @brief get the directory location for where this file should be saved
+ *
+ * Examples:
+ * "filename.suffix" -> ""
+ * "directory/filename.suffix" -> "directory"
+ * "directory/subdirectory/filename.suff" -> "directory/subdirectory"
+ *
+ * @param path const char* - full path to the file
+ * @param buffer char* - where to put the result (must be pre-allocated)
+ * @return true - on success
+ * @return false - on failure
+ */
+bool extractDirectory(const char* path, char* buffer);
+
+/**
+ * @brief get just the basename from the path
+ *
+ * Examples:
+ *  "filename.suffix" -> "filename.suffix"
+ * "directory/filename.suffix" -> "filename.suffix"
+ * "directory/subdirectory/filename.suff" -> "filename.suff"
+ *
+ * @param path const char* - full path to the file
+ * @param buffer char* - where to put the result (must be pre-allocated)
+ * @return true - on success
+ * @return false - on failure
+ */
+bool extractBasename(const char* path, char* buffer);
+
+/**
+ * @brief if necessary creates nested directories to put the file into
+ *
+ * Example:
+ * "data/nestedA/nestedB/myfile.txt"
+ * mkdir(data)
+ * mkdir(data/nestedA)
+ * mkdir(data/nestedA/nestedB)
+ *
+ * @param full_dirname const char* - full path for the file
+ * @return true - on success
+ * @return false - on failure
+ */
+bool createNestedDirectories(const char* full_dirname);
+
+/**
+ * @brief receive data from the socket and write it to the file
+ *
+ * @param destination_file const char* - where to save the data received from the socket
+ * @param file_size long - number of bytes we expect to receive from the socket
+ * @param socket_descriptor const int - socket handle
+ * @return true - on success
+ * @return false - on failure
+ */
 bool receiveFileContents(const char* destination_file, const long file_size, const int socket_descriptor);
 
 #endif
