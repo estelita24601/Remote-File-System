@@ -22,8 +22,13 @@
 
 // if the make command defines debug mode then we'll print the debug messages
 // source: chatgpt
+#define DEBUG_MODE
 #ifdef DEBUG_MODE
-#define debug(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#define debug(fmt, ...)             \
+    do {                            \
+        printf(fmt, ##__VA_ARGS__); \
+        fflush(stdout);             \
+    } while (0)
 #else
 #define debug(fmt, ...) \
     do {                \
