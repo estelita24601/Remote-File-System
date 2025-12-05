@@ -1,3 +1,12 @@
+/**
+ * @file thread_manager.h
+ * @author your name (you@domain.com)
+ * @brief
+ * @version 0.1
+ * @date 2025-12-04
+ *
+ */
+
 #ifndef THREAD_MANAGER_H
 #define THREAD_MANAGER_H
 

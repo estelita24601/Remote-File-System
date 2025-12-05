@@ -5,8 +5,6 @@
  * @version 0.1
  * @date 2025-11-24
  *
- * @copyright Copyright (c) 2025
- *
  */
 #include "arg_parser.h"
 
@@ -36,7 +34,6 @@ void printHelp() {
     printf("  rfs LS --remote PATH\n");
 }
 
-
 command_type getCommandType(int argc, char* argv[]) {
     // make sure there are enough args
     if (argc < 2) {
@@ -47,7 +44,6 @@ command_type getCommandType(int argc, char* argv[]) {
     char* cmd_string = argv[1];
     return strToCommandType(cmd_string);
 }
-
 
 char* getPathArg(int argc, char* argv[], const char* flag) {
     // look at all the args after the command
@@ -76,7 +72,6 @@ char* getPathArg(int argc, char* argv[], const char* flag) {
 
     return NULL;  // never found the flag in the args
 }
-
 
 command_t* argParser(int argc, char* argv[]) {
     // get command from the args

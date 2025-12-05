@@ -5,8 +5,6 @@
  * @version 0.1
  * @date 2025-11-30
  *
- * @copyright Copyright (c) 2025
- *
  */
 
 #ifndef TEST_UTILS_H

@@ -1,3 +1,12 @@
+/**
+ * @file thread_manager.c
+ * @author your name (you@domain.com)
+ * @brief
+ * @version 0.1
+ * @date 2025-12-04
+ *
+ */
+
 #include "thread_manager.h"
 
 extern file_lock_list* file_lock_manager;
