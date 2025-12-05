@@ -36,13 +36,14 @@ long getFileSize(const char* file_path);
 
 /**
  * @brief copy the contents from one file to the other
+ * IMPORTANT: this will not close the files for you
  *
- * @param source const char* - path for the file that is the source of the content
- * @param destination const char* - path for the file that we're copying the content over to
+ * @param source FILE* - file that is the source of the content
+ * @param destination FILE* - file that we're copying the content over to
  * @return true - on success
  * @return false - on failure
  */
-bool copyFile(const char* source, const char* destination);
+bool copyFile(const FILE* source, const FILE* destination);
 
 /**
  * @brief send contents of the source file to the socket

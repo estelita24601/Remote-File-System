@@ -27,15 +27,28 @@ long getFileSize(const char* file_path) {
     return file_size;
 }
 
-bool copyFile(const char* source, const char* destination) {
-    if (source == NULL) {
-        fprintf(stderr, "ERROR: can't copy file because source filepath is NULL\n");
-        return false;
-    } else if (destination == NULL) {
-        fprintf(stderr, "ERROR: can't copy file because destination filepath is NULL\n");
+bool copyFile(FILE* source, FILE* destination) {
+    if (source == NULL || destination == NULL) {
+        fprintf(stderr, "ERROR: received one or more NULL file pointers\n");
         return false;
     }
-    return false;
+
+    char buffer[MAX_BUFF_SIZE];
+    memset(buffer, '\0', sizeof(buffer));
+
+    while (true) {
+        // read from source
+        size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, source);
+
+        // write to the destination
+        fwrite(buffer, 1, buffer_fill, destination);
+
+        if (feof(source)) {
+            break;
+        }
+    }
+
+    return true;
 }
 
 bool sendFileContents(const char* source_file, const long file_size, const int socket_descriptor) {
@@ -170,7 +183,6 @@ bool createNestedDirectories(const char* full_path) {
     return true;
 }
 
-// todo: rename args so destination_file is destination_path
 bool receiveFileContents(const char* destination_path, const long file_size, const int socket_descriptor) {
     // try to open the file they asked us to write to
     FILE* file = fopen(destination_path, "wb");
