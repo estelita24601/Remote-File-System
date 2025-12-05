@@ -10,10 +10,14 @@
 #include "request_handler.h"
 
 char* createVersionName(const char* basename) {
-    // SIMPLE_VERSION_FORMAT "%s.%ld"  // basename.timestamp
+    // SIMPLE_VERSION_FORMAT "%s.%ld"  // basename.timestamp_microseconds
     char* versionName = malloc(sizeof(char) * MAX_PATH_LEN);
-    time_t now = time(NULL);
-    sprintf(versionName, SIMPLE_VERSION_FORMAT, basename, now);
+
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    long timestamp = (long) now.tv_sec;
+    long microseconds = (long) now.tv_usec;
+    sprintf(versionName, SIMPLE_VERSION_FORMAT, basename, timestamp, microseconds);
 
     return versionName;
 }

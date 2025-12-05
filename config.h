@@ -15,14 +15,14 @@
 #define MAX_BUFF_SIZE 2000
 #define MAX_PATH_LEN 260
 #define PATH_FORMAT "data/%s"
-#define SIMPLE_VERSION_FORMAT "%s.%ld"  // basename.timestamp
+#define SIMPLE_VERSION_FORMAT "%s.%ld_%ld"  // basename.timestamp_microseconds
 
 // todo: if time switch to this
-#define VERSION_FORMAT "%s__%ld.%s"  // filename__timestamp.suffix
+#define VERSION_FORMAT "%s.%ld_%ld.%s"  // filename.timestamp_microseconds.suffix
 
 // if the make command defines debug mode then we'll print the debug messages
 // source: chatgpt
-#define DEBUG_MODE
+// #define DEBUG_MODE
 #ifdef DEBUG_MODE
 #define debug(fmt, ...)             \
     do {                            \
