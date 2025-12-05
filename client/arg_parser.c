@@ -36,13 +36,7 @@ void printHelp() {
     printf("  rfs LS --remote PATH\n");
 }
 
-/**
- * @brief Get the Command from the args
- *
- * @param argc - number of args
- * @param argv - array of arg strings
- * @return command_type - enum for the type of command found or UNKNOWN if unable to find valid command
- */
+
 command_type getCommandType(int argc, char* argv[]) {
     // make sure there are enough args
     if (argc < 2) {
@@ -54,14 +48,7 @@ command_type getCommandType(int argc, char* argv[]) {
     return strToCommandType(cmd_string);
 }
 
-/**
- * @brief - get the filepath from the args
- *
- * @param argc - number of args
- * @param argv - list of arg strings
- * @param flag - path type we're looking for, "--local" or "--remote"
- * @return char* - the path given after the flag
- */
+
 char* getPathArg(int argc, char* argv[], const char* flag) {
     // look at all the args after the command
     for (int i = 1; i < argc; i++) {
@@ -90,13 +77,7 @@ char* getPathArg(int argc, char* argv[], const char* flag) {
     return NULL;  // never found the flag in the args
 }
 
-/**
- * @brief
- *
- * @param argc
- * @param argv
- * @return command_t*
- */
+
 command_t* argParser(int argc, char* argv[]) {
     // get command from the args
     command_type commandType = getCommandType(argc, argv);

@@ -23,10 +23,10 @@
 #include "arg_parser.h"
 
 /**
- * @brief
+ * @brief sends a request to the server
  *
- * @param command
- * @param socket_descriptor
+ * @param command command_t* - the command that the client wants the server to execute
+ * @param socket_descriptor const int - handle for the server socket
  */
 void sendRequest(command_t* command, const int socket_descriptor) {
     // create a request object using the command from the args
@@ -60,6 +60,11 @@ void sendRequest(command_t* command, const int socket_descriptor) {
     freeRequest(req);
 }
 
+/**
+ * @brief print out the server response to the console
+ *
+ * @param response response_t* - the deserialized response we got from the server
+ */
 void displayServerResponse(response_t* response) {
     if (response->status == true) {
         printf("\nSUCCESS\n");
@@ -74,6 +79,13 @@ void displayServerResponse(response_t* response) {
     }
 }
 
+/**
+ * @brief receive data from the server and write it to the indicated local file
+ *
+ * @param filepath const char* - path to the file the client will save the data into
+ * @param response response_t* - response this client received from the server
+ * @param socket_descriptor const int - handle for the server socket
+ */
 void handleGetResponse(const char* filepath, response_t* response, const int socket_descriptor) {
     long source_length = response->data_len;
     if (source_length < 0) {

@@ -1,6 +1,5 @@
 #include "request_handler.h"
 
-// todo: add this to header
 bool saveCurrentVersion(const char* filepath) {
     return true;
     // 0th make sure the file we're trying to save the curr version of even exists
