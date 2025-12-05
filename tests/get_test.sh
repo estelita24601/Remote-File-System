@@ -12,10 +12,10 @@ sleep 3
 echo ""
 echo "======== Removing Old Files ========"
 # make client empty so we can tell what was written during this test
-rm -f client/data/*
+rm -f -r client/data/*
 
 # make sure server has test files
-rm -f server/data/*
+rm -f -r server/data/*
 cp -r tests/data/* server/data
 
 # remove previous client output files

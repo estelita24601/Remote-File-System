@@ -12,10 +12,10 @@ sleep 1
 echo ""
 echo "======== Reseting Files ========"
 # make server empty so we can tell what was written during this test
-rm -f server/data/*
+rm -f -r server/data/*
 
 # make sure client has test files
-rm -f client/data/*
+rm -f -r client/data/*
 cp -r tests/data/* client/data
 
 # remove previous client output files
