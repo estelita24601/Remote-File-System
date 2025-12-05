@@ -102,7 +102,7 @@ bool extractDirectory(const char* path, char* buffer) {
     }
 
     strcpy(buffer, path);
-    char* lastSlash = strrchr(path, '/');
+    char* lastSlash = strrchr(buffer, '/');
     if (lastSlash != NULL) {
         // everything BEFORE the last instance of /
         // so null terminate at the slash

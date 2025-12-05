@@ -43,7 +43,7 @@ long getFileSize(const char* file_path);
  * @return true - on success
  * @return false - on failure
  */
-bool copyFile(const FILE* source, const FILE* destination);
+bool copyFile(FILE* source, FILE* destination);
 
 /**
  * @brief send contents of the source file to the socket
