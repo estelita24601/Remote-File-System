@@ -62,7 +62,7 @@ int main(void) {
     printServerAddress();
 
     // Listen for clients:
-    int listenStatus = listen(socket_descriptor, 1);
+    int listenStatus = listen(socket_descriptor, 10);
     if (listenStatus < 0) {
         fprintf(stderr, "Error while listening\n");
         close(socket_descriptor);
