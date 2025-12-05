@@ -27,6 +27,9 @@ long getFileSize(const char* file_path) {
     return file_size;
 }
 
+// todo: add to header file
+bool copyFile(const char* source, const char* destination) { return false; }
+
 bool sendFileContents(const char* source_file, const long file_size, const int socket_descriptor) {
     // try to open file we were given
     FILE* file = fopen(source_file, "rb");
@@ -63,22 +66,24 @@ bool sendFileContents(const char* source_file, const long file_size, const int s
     fclose(file);
     return true;
 }
-// todo: add this to header
-char* extractDirectory(const char* path) { return NULL; }
 
 // todo: add this to header
-char* extractBasename(const char* path) { return NULL; }
+bool extractDirectory(const char* path, const char* buffer) { return false; }
 
 // todo: add this to header
-char* extractFileStem(const char* basename) { return NULL; }
+bool extractBasename(const char* path, const char* buffer) { return false; }
 
 // todo: add this to header
-char* extractFileExtension(const char* basename) { return NULL; }
+bool extractFileStem(const char* basename, const char* buffer) { return false; }
 
-// todo: handle destination_file that has nested directories that don't exist yet
-// todo: split directory by '/' and recursively use mkdir()
+// todo: add this to header
+bool extractFileExtension(const char* basename, const char* buffer) { return false; }
+
 // todo: rename args so destination_file is destination_path
 bool receiveFileContents(const char* destination_file, const long file_size, const int socket_descriptor) {
+    // todo: handle destination_file that has nested directories that don't exist yet
+    // todo: split directory by '/' and recursively use mkdir()
+
     // try to open the file they asked us to write to
     FILE* file = fopen(destination_file, "wb");
     if (file == NULL) {
