@@ -41,3 +41,5 @@
 <https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry>
 <https://hpc-tutorials.llnl.gov/posix/creating_and_destroying_mutexes/>
 <https://www.man7.org/linux/man-pages/man3/pthread_mutex_destroy.3p.html>
+<https://www.delftstack.com/howto/c/mkdir-in-c/>
+<https://man7.org/linux/man-pages/man2/mkdir.2.html>
