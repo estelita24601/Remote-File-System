@@ -12,14 +12,15 @@ sleep 1
 echo ""
 echo "======== Reseting Files ========"
 # make server empty so we can tell what was written during this test
-rm -f -r server/data/*
+rm -rf server/data/*
+rm -rf server/data/.versions
 
 # make sure client has test files
-rm -f -r client/data/*
+rm -rf client/data/*
 cp -r tests/data/* client/data
 
 # remove previous client output files
-rm -f tests/output/version_*
+rm -f tests/output/version*
 
 cd server
 echo ""
@@ -32,10 +33,33 @@ cd ../client
 echo ""
 echo "======== TEST 1: write 112KB text file to same remote path twice ========"
 echo "./rfs WRITE --local file_112kb.txt"
-./rfs WRITE --local file_112kb.txt &> ../tests/output/versiontest_1a.txt
+./rfs WRITE --local file_112kb.txt &> ../tests/output/version_test_1a.txt
 
 echo "./rfs WRITE --local file_112kb.txt"
 ./rfs WRITE --local file_112kb.txt &> ../tests/output/version_test_1b.txt
+
+echo ""
+echo "Checking for version files..."
+ls ../server/data/.versions/
+
+echo ""
+echo "======== TEST 2: write different content to same file 3 times ========"
+
+echo "version 1" > data/v1.txt
+echo "./rfs WRITE --local v1.txt --remote test.txt"
+./rfs WRITE --local v1.txt --remote test.txt
+
+echo "version 2" > data/v2.txt
+echo "./rfs WRITE --local v2.txt --remote test.txt"
+./rfs WRITE --local v2.txt --remote test.txt
+
+echo "version 3" > data/v3.txt
+echo "./rfs WRITE --local v3.txt --remote test.txt"
+./rfs WRITE --local v3.txt --remote test.txt
+
+echo ""
+echo "Checking for version files..."
+ls ../server/data/.versions/
 
 
 echo ""
