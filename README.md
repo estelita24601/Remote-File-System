@@ -43,3 +43,4 @@
 <https://www.man7.org/linux/man-pages/man3/pthread_mutex_destroy.3p.html>
 <https://www.delftstack.com/howto/c/mkdir-in-c/>
 <https://man7.org/linux/man-pages/man2/mkdir.2.html>
+<https://thelinuxcode.com/gettimeofday_c_language/>
