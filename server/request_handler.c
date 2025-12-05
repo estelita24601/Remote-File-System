@@ -19,6 +19,8 @@ char* createVersionName(const char* basename) {
 }
 
 bool saveCurrentVersion(const char* filepath) {
+    debug("saveCurrentVersion(%s)\n", filepath);
+
     // make sure the file we're trying to save the curr version of even exists
     FILE* currFile = fopen(filepath, "rb");
     if (currFile == NULL) {
@@ -34,6 +36,8 @@ bool saveCurrentVersion(const char* filepath) {
         fclose(currFile);
         return false;
     }
+    debug("\t directory_only = %s\n", directory_only);
+    debug("\t basename_only = %s\n", basename_only);
 
     // this is where current version will be saved
     char version_directory[MAX_PATH_LEN];

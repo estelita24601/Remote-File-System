@@ -45,6 +45,10 @@ command_type strToCommandType(const char* str) {
 }
 
 char* formatPath(const char* str) {
+    // todo slash fixme
+    //  if (strlen(str) > MAX_PATH_LEN) {
+    //      fprintf(stderr, "WARNING: path will be truncated because it's longer than %d characters\n", MAX_PATH_LEN);
+    //  }
     char* path = malloc(sizeof(char) * (strlen(PATH_FORMAT) + strlen(str)));
     sprintf(path, PATH_FORMAT, str);
     return path;

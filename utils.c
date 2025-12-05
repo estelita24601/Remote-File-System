@@ -28,6 +28,7 @@ long getFileSize(const char* file_path) {
 }
 
 bool copyFile(FILE* source, FILE* destination) {
+    debug("copyFile()\n");
     if (source == NULL || destination == NULL) {
         fprintf(stderr, "ERROR: received one or more NULL file pointers\n");
         return false;
@@ -139,12 +140,15 @@ bool extractBasename(const char* path, char* buffer) {
 }
 
 bool createNestedDirectories(const char* full_path) {
+    debug("createNestedDirectories(%s)\n", full_path);
+
     // just look at the folders, remove the filename
     char directory_only[MAX_PATH_LEN];
     if (!extractDirectory(full_path, directory_only)) {
         fprintf(stderr, "unable to create nested directories for %s\n", full_path);
         return false;
     }
+    debug("\tdirectory_only = %s\n", directory_only);
 
     // see if it already exists so we can end early
     DIR* directory = opendir(directory_only);
@@ -166,6 +170,7 @@ bool createNestedDirectories(const char* full_path) {
             strcat(curr_directory, token);
         }
 
+        debug("\ttry to create: %s\n", curr_directory);
         // try to create current directory
         int status = mkdir(curr_directory, 0755);  // permissions = rwxr-xr-x
         if (status != 0) {
