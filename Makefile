@@ -18,10 +18,10 @@ client: $(CLIENT_SRCS)
 server: $(SERVER_SRCS)
 	$(CC) $(CFLAGS) $^ -o server/rfs_server $(LDFLAGS)
 
-test_args: client/arg_parser.c command.c
-	$(CC) $(CFLAGS) -DTEST_ARGS $^ -o tests/rfs_test
+test_args: client/arg_parser.c $(COMMON_SRCS)
+	$(CC) $(CFLAGS) -DTEST_ARGS $^ -o tests/rfs_test $(LDFLAGS)
 
-test_protocol: tests/protocol_test.c tests/test_utils.c protocol.c command.c
+test_protocol: tests/protocol_test.c tests/test_utils.c $(COMMON_SRCS)
 	$(CC) $(CFLAGS) $^ -o tests/rfs_test $(LDFLAGS)
 
 clean:
