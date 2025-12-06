@@ -42,22 +42,14 @@ setup(){
 display_client_data(){
     # assuming we're inside of tests
     echo ""
-    echo "~~~~~~~~~~~~~~ RESULT ~~~~~~~~~~~~~~"
-    echo "client/data"
-    ls ../client/data | sed 's/^/\t/'
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ls -R ../client/data | sed 's/^/\t/'
 }
 
 display_server_data(){
     # assuming we're inside of tests
     echo ""
-    echo "~~~~~~~~~~~~~~ RESULT ~~~~~~~~~~~~~~"
-    echo "server/data"
-    ls ../server/data | sed 's/^/\t/'
-
-    if [ -d ../server/data/.versions ]; then
-        echo "server/data/.versions"
-        ls ../server/data/.versions | sed 's/^/\t/'
-    fi
-
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ls -R ../server/data | sed 's/^/\t/'
     echo ""
 }

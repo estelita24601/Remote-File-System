@@ -7,7 +7,7 @@ cd ..
 setup
 
 # make sure client has default files
-cp -r tests/data/* client/data
+cp -r tests/default_data/* client/data
 
 # remove previous test output files
 rm -f "$OUT/test*"

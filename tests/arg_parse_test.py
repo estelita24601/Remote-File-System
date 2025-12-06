@@ -2,7 +2,7 @@ import subprocess
 from typing import List, Tuple
 
 # name of executable
-PROGRAM = "rfs_test"
+PROGRAM = "test_args"
 
 # commands
 WRITE = "WRITE"

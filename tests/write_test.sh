@@ -8,7 +8,7 @@ setup
 # remove previous test output files
 rm -f tests/output_write/*
 # give client the default files
-cp -r tests/data/* client/data
+cp -r tests/default_data/* client/data
 
 cd server
 print_header "Starting Server in Background"

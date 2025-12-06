@@ -6,7 +6,7 @@ OUT=../tests/output_get
 cd ..
 setup
 # copy default files to the server
-cp -r tests/data/* server/data
+cp -r tests/default_data/* server/data
 # remove previous test output files
 rm -f tests/output_get/*
 
