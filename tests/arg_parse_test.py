@@ -19,7 +19,7 @@ LOCAL_PATH = "local_file.txt"
 REMOTE_PATH = "remote_file.txt"
 
 # what the executable should print out
-OUTPUT_FORMAT = "COMMAND = %s\nLOCAL_PATH = %s\nREMOTE_PATH = %s\n"
+OUTPUT_FORMAT = "COMMAND = %s\nLOCAL_PATH = data/%s\nREMOTE_PATH = data/%s\n"
 
 
 def run(cmd: List[str]) -> Tuple[bool, str]:
@@ -169,7 +169,7 @@ def test_invalid_args():
 
 def main():
     # initial setup, create the custom executable called `rfs_test`
-    result = subprocess.run(["make", "test_args"])
+    result = subprocess.run(["make", "test_args"], cwd="..")
 
     # make sure we created exectuable for the test
     if result.returncode != 0:
