@@ -68,5 +68,6 @@ server/data/*
 client/data/*
 
 # test outputs
-tests/output/*
+tests/output*
+
 CS5600.SelfEvalRubric.Practicum-II - Copy.xlsx
