@@ -1,52 +1,41 @@
 #!/bin/bash
 
+. script_helpers.sh
+
 cd ..
-echo "======== Building Project ========="
-make clean
-make || exit 1
-
-echo "======== Cleaning up old processes ========"
-killall -9 rfs_server
-sleep 3
-
-echo ""
-echo "======== Removing Old Files ========"
-# make client empty so we can tell what was written during this test
-rm -f -r client/data/*
-
-# make sure server has test files
-rm -f -r server/data/*
+setup
+# copy default files to the server
 cp -r tests/data/* server/data
-
-# remove previous client output files
-rm -f tests/output/get_*
+# remove previous test output files
+rm -f tests/output_get/*
 
 cd server
-echo ""
-echo "======== Starting Server in Background ========"
-./rfs_server &
+print_header "Starting Server in Background"
+(./rfs_server 2>&1 | tee ../tests/output_get/server.log) &
 SERVER_PROCESS_ID=$! # save for later
 sleep 1 # give server enough time to start up
 
 cd ../client
-echo ""
-echo "======== TEST 1: request the 112KB text file from the server with default local path ========"
-echo "./rfs GET --remote file_112kb.txt"
-./rfs GET --remote file_112kb.txt &> ../tests/output/get_test_1.txt
 
-# todo: test 2 request file with custom local path
+print_header "TEST 1: request the 112KB text file from the server with default local path"
+run_cmd_and_save ../tests/output_get/test_1.txt ./rfs GET --remote file_112kb.txt
+display_client_data
 
-# todo: test 3 request different type of file
+print_header "TEST 2: request the 112KB text file from the server with a custom local path"
+run_cmd_and_save ../tests/output_get/test_2.txt ./rfs GET --remote file_112kb.txt --local custom_local_112kb.txt
+display_client_data
 
-echo ""
-echo "======== TEST 4: multiple clients  ========"
+print_header "TEST 3: request the csv file from the server with a custom local path"
+run_cmd_and_save ../tests/output_get/test_3.text ./rfs GET --remote test.csv --local custom_local_csv.txt
+display_client_data
+
+print_header "TEST 4: multiple clients"
 for i in {1..10}; do
-    echo "./rfs GET --remote file_112kb.txt --local thread_test_$i.txt"
-    ./rfs GET --remote file_112kb.txt --local thread_test_$i.txt &> ../tests/output/get_test_thread_$i.txt &
+    run_cmd_and_save ../tests/output_get/test_thread_$i.txt ./rfs GET --remote file_112kb.txt --local thread_test_$i.txt &
 done
 sleep 5 # wait for all threads to finish
+display_client_data
 
-echo ""
-echo "======== End of Tests: Killing Server ========"
+print_header "End of Tests: Killing Server"
 # kill server
 kill $SERVER_PROCESS_ID
