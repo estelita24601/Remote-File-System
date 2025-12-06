@@ -1,3 +1,0 @@
-hello this test file is created for the remote file system
-the server is the only one that has this file and the client is going to ask for it
-this file should show up on client side the exact same way

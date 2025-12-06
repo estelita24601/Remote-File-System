@@ -29,8 +29,10 @@ bool saveCurrentVersion(const char* filepath) {
     FILE* currFile = fopen(filepath, "rb");
     if (currFile == NULL) {
         // don't need to save current version because it doesn't exist yet
+        debug("\tfile doesn't exist yet, no version to save\n");
         return true;
     }
+    debug("\topened current file successfully\n");
 
     // extract directory and basename from the path we're saving a version of
     char directory_only[MAX_PATH_LEN];
@@ -57,7 +59,9 @@ bool saveCurrentVersion(const char* filepath) {
     free(version_filename);
 
     // make sure that nested folders for path exists
+    debug("About to create nested directories for: %s\n", full_path);
     createNestedDirectories(full_path);
+    debug("Back from createNestedDirectories\n");
 
     // copy contents from original file over to this version file
     FILE* newFile = fopen(full_path, "wb");
@@ -69,9 +73,13 @@ bool saveCurrentVersion(const char* filepath) {
 }
 
 void handleWriteRequest(request_t* write_request, const int socket_descriptor) {
-    bool status;
-    status = saveCurrentVersion(write_request->remote_path);
+    // just in case there are multiple layers of nested folders
+    createNestedDirectories(write_request->remote_path);
 
+    // if this file already exists save this version of it
+    bool status = saveCurrentVersion(write_request->remote_path);
+
+    // try to get contents from client and save it to the file
     status = status && receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
 
     // todo: if time figure out how to get better or more descriptive error message for the response
@@ -79,11 +87,14 @@ void handleWriteRequest(request_t* write_request, const int socket_descriptor) {
 }
 
 void handleGetRequest(request_t* get_request, const int socket_descriptor) {
+    debug("handleGetRequest()\n");
     char* source_path = get_request->remote_path;
     long source_length = getFileSize(source_path);
+    debug("\t%s is %ld bytes long\n", source_path, source_length);
 
     if (source_length < 0) {
         buildAndSendResponse(socket_descriptor, false, 0, "unable to open and/or get size of the requested file");
+        debug("\ttried to send response and now exiting early");
         return;
     } else {
         buildAndSendResponse(socket_descriptor, true, source_length, "OK");

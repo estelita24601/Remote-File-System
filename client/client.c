@@ -88,8 +88,10 @@ void displayServerResponse(response_t* response) {
  */
 void handleGetResponse(const char* filepath, response_t* response, const int socket_descriptor) {
     long source_length = response->data_len;
-    if (source_length < 0) {
-        printf("ERROR: server said that it sent %ld bytes\n", source_length);
+    debug("handleGetResponse() - expecting %ld bytes from the server\n", source_length);
+    if (source_length <= 0) {
+        fprintf(stderr, "ERROR: server said that it sent %ld bytes\n", source_length);
+        displayServerResponse(response);
     } else {
         receiveFileContents(filepath, source_length, socket_descriptor);
     }
@@ -98,14 +100,14 @@ void handleGetResponse(const char* filepath, response_t* response, const int soc
 int main(int argc, char* argv[]) {
     command_t* command = argParser(argc, argv);
     if (command == NULL) {
-        printf("ERROR: unable to parse valid command from the args!\n");
+        fprintf(stderr, "EARLY EXIT: unable to parse valid command from the args!\n");
         return -1;
     }
 
     // create the socket
     int socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_descriptor < 0) {
-        printf("ERROR: unable to create socket\n\n");
+        fprintf(stderr, "EARLY EXIT: unable to create socket\n\n");
         close(socket_descriptor);
         return -1;
     }
@@ -122,11 +124,13 @@ int main(int argc, char* argv[]) {
     struct sockaddr* socket_address = (struct sockaddr*) &server_address;
     int status = connect(socket_descriptor, socket_address, sizeof(server_address));
     if (status < 0) {
-        printf("ERROR: unable to connect to server\n");
+        printf("EARLY EXIT: unable to connect to server\n");
+        fflush(stdout);
         close(socket_descriptor);
         return -1;
     } else {
         printf("successfully connected to %s at port %d\n", command->server_ip, PORT);
+        fflush(stdout);
     }
 
     sendRequest(command, socket_descriptor);
@@ -136,7 +140,7 @@ int main(int argc, char* argv[]) {
     memset(buffer, '\0', MAX_BUFF_SIZE);
     status = recv(socket_descriptor, buffer, sizeof(buffer), 0);
     if (status < 0) {
-        printf("ERROR: unable to receive response from server\n");
+        fprintf(stderr, "EARLY EXIT: unable to receive response from server\n");
         close(socket_descriptor);
         return -1;
     }
@@ -144,7 +148,7 @@ int main(int argc, char* argv[]) {
     // handle server response
     response_t* response = deSerializeResponse(buffer);
     if (response == NULL) {
-        printf("WARNING: unable to de-serialize response\n");
+        fprintf(stderr, "EARLY EXIT: unable to de-serialize response\n");
         printf("raw server response = %s\n", buffer);
 
         // end program early

@@ -19,7 +19,7 @@ request_t* receiveRequest(const int socket_descriptor) {
     // try to receive from the client
     int receiveStatus = recv(socket_descriptor, buffer, MAX_BUFF_SIZE, 0);
     if (receiveStatus < 0) {
-        fprintf(stderr, "ERROR: couldn't receive data from the client\n");
+        printf("WARNING: couldn't receive data from the client\n");
         return NULL;
     }
     debug("CLIENT REQUEST: %s\n", buffer);
@@ -27,7 +27,7 @@ request_t* receiveRequest(const int socket_descriptor) {
     // try to turn what we received into a valid request object
     request_t* req = deSerializeRequest(buffer);
     if (req == NULL) {
-        fprintf(stderr, "ERROR: unable to de-serialize '%s' into a valid request object\n", buffer);
+        printf("WARNING: unable to de-serialize '%s' into a valid request object\n", buffer);
         return NULL;
     }
 

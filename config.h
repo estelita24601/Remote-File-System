@@ -20,7 +20,7 @@
 
 // if the make command defines debug mode then we'll print the debug messages
 // source: chatgpt
-// #define DEBUG_MODE
+#define DEBUG_MODE
 #ifdef DEBUG_MODE
 #define debug(fmt, ...)             \
     do {                            \

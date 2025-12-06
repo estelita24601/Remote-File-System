@@ -35,6 +35,7 @@ setup(){
 
     print_header "Resetting Files"
     rm -rf server/data/*
+    rm -rf server/data/.versions/*
     rm -rf client/data/*
 }
 

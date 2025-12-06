@@ -14,7 +14,7 @@ long getFileSize(const char* file_path) {
     // try to open the file
     FILE* file = fopen(file_path, "rb");
     if (file == NULL) {
-        fprintf(stderr, "ERROR: unable to open %s\n", file_path);
+        fprintf(stderr, "WARNING: unable to open %s\n", file_path);
         return -1;
     }
 
