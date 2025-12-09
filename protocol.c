@@ -138,11 +138,11 @@ request_t* deSerializeRequest(const char* buffer) {
     }
     free(buffer_cpy);
 
-    if (i < 3) {
+    if (i >= 3 && path != NULL) {
+        return createRequestFromParts(type, path, data_len);
+    } else {
         fprintf(stderr, "WARNING: client request string doesn't follow format 'command,data_len,remote_path'\n");
         return NULL;
-    } else {
-        return createRequestFromParts(type, path, data_len);
     }
 }
 
