@@ -74,7 +74,7 @@ bool sendFileContents(const char* source_file, const long file_size, const int s
         size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, file);
 
         // send to the socket
-        int status = send(socket_descriptor, buffer, buffer_fill, 0);
+        int status = send_all(socket_descriptor, buffer, buffer_fill, 0);
         if (status < 0) {
             fprintf(stderr, "ERROR: unable to send file contents\n");
             fclose(file);
