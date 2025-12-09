@@ -46,10 +46,11 @@ print_header "TEST 7: multiple clients ask for the same file"
 for i in {1..10}; do
     run_cmd_and_save "$OUT/test_thread_$i.txt" ./rfs GET --remote file_112kb.txt --local thread_test_$i.txt &
 done
-sleep 5 # wait for all threads to finish
+echo ""
+echo "wait for threads to finish"
+echo "sleep 3"
+sleep 3
 display_client_data
-
-
 
 print_header "End of Tests: Killing Server"
 # kill server

@@ -42,14 +42,14 @@ setup(){
 display_client_data(){
     # assuming we're inside of tests
     echo ""
-    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    ls -R ../client/data | sed 's/^/\t/'
+    echo "================================================"
+    ls -R -A ../client/data | sed 's/^/  /'
 }
 
 display_server_data(){
     # assuming we're inside of tests
     echo ""
-    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    ls -R ../server/data | sed 's/^/\t/'
+    echo "================================================"
+    ls -R -A ../server/data | sed 's/^/  /'
     echo ""
 }

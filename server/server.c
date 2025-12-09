@@ -105,40 +105,6 @@ int main(void) {
             buildAndSendResponse(client_socket_descriptor, false, 0, "unable to spawn worker thread for this request");
             close(client_socket_descriptor);
         }
-
-        // // Receive client's message:
-        // request_t* client_req = receiveRequest(client_socket_descriptor);
-        // if (client_req == NULL) {
-        //     // try to tell client that there was a failure
-        //     buildAndSendResponse(client_socket_descriptor, false, 0, "unable to receive request");
-
-        //     // give up on this client and wait for the next one
-        //     close(client_socket_descriptor);
-        //     continue;
-        // }
-
-        // // handle the request made by the client
-        // switch (client_req->command) {
-        //     case WRITE:
-        //         handleWriteRequest(client_req, client_socket_descriptor);
-        //         break;
-        //     case RM:
-        //         handleRemoveRequest(client_req, client_socket_descriptor);
-        //         break;
-        //     case GET:
-        //         handleGetRequest(client_req, client_socket_descriptor);
-        //         break;
-        //     case LS:
-        //         buildAndSendResponse(client_socket_descriptor, false, 0, "optional command isn't implemented yet");
-        //         break;
-        //     default:
-        //         buildAndSendResponse(client_socket_descriptor, false, 0, "didn't receive valid command");
-        //         break;
-        // }
-        // freeRequest(client_req);
-
-        // // close client socket now that we're finished with this client
-        // close(client_socket_descriptor);
     }
 
     // server cleanup

@@ -21,7 +21,15 @@
 #include "../protocol.h"
 #include "../utils.h"
 
-// todo: documentation
+/**
+ * @brief uses the version name format string from config.h to
+ *
+ * Example:
+ * "hello.txt" -> "hello.txt.<unix_timestamp>.<microseconds>"
+ *
+ * @param basename const char* - file we want to make a version of
+ * @return char* - filename for the version
+ */
 char* makeVersionName(const char* basename);
 
 /**

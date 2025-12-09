@@ -89,7 +89,7 @@ command_t* argParser(int argc, char* argv[]) {
 
     // default ip address is localhost
     if (ip_address == NULL) {
-        ip_address = "127.0.0.1";
+        ip_address = DEFAULT_IP;
     }
 
     // make sure required local or remote path is included in the args

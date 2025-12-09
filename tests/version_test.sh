@@ -26,14 +26,25 @@ display_server_data
 
 print_header "TEST 2: write different content to same file 3 times"
 echo "version 1" > data/v1.txt
-run_cmd_and_save "$OUT/test_2a.txt" ./rfs WRITE --local v1.txt --remote test.txt
-
 echo "version 2" > data/v2.txt
-run_cmd_and_save "$OUT/test_2b.txt" ./rfs WRITE --local v2.txt --remote test.txt
-
 echo "version 3" > data/v3.txt
+run_cmd_and_save "$OUT/test_2a.txt" ./rfs WRITE --local v1.txt --remote test.txt
+run_cmd_and_save "$OUT/test_2b.txt" ./rfs WRITE --local v2.txt --remote test.txt
 run_cmd_and_save "$OUT/test_2c.txt" ./rfs WRITE --local v3.txt --remote test.txt
+display_server_data
 
+print_header "TEST 3: GET returns most recent version"
+run_cmd_and_save "$OUT/test_3.txt" ./rfs GET --remote test.txt --local retrieved_test.txt
+echo ""
+echo "EXPECTED:"
+echo "version 3"
+echo ""
+echo "ACTUAL:"
+cat data/retrieved_test.txt
+display_client_data
+
+print_header "TEST 4: make sure deleting a file also deletes all version history"
+run_cmd_and_save "$OUT/test_4.txt" ./rfs RM --remote test.txt
 display_server_data
 
 print_header "End of Tests: Killing Server"

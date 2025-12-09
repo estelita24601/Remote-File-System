@@ -48,7 +48,7 @@ bool saveCurrentVersion(const char* filepath) {
     // this is where current version will be saved
     char version_directory[MAX_PATH_LEN];
     strcpy(version_directory, directory_only);
-    strcat(version_directory, VERSION_SUBFOLDER);  // todo: put this into config.h
+    strcat(version_directory, VERSION_SUBFOLDER); 
 
     // create the full path where we'll be saving the current version
     char* version_filename = makeVersionName(basename_only);

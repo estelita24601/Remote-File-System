@@ -12,8 +12,13 @@ cp -r tests/default_data/* client/data
 
 cd server
 print_header "Starting Server in Background"
+
 # redirect stdout and stderr to logfile and still print it out
 (./rfs_server 2>&1 | tee "$OUT/server.log" )&
+# OR: don't print server messages to terminal and only put it in the log
+# (./rfs_server >& "$OUT/server.log" )&
+
+
 SERVER_PROCESS_ID=$! # save for later
 sleep 1 # give server enough time to start up
 
@@ -44,14 +49,17 @@ run_cmd_and_save "$OUT/test_6.txt" ./rfs WRITE --local hello.txt --remote subfol
 display_server_data
 
 print_header "TEST 7: send file to server with multiple layers of folders"
-run_cmd_and_save "$OUT/test_7.txt" ./rfs WRITE --local hello.txt --remote subfolder/another_folder/third_layer/hello.txt
+run_cmd_and_save "$OUT/test_7.txt" ./rfs WRITE --local hello.txt --remote subfolder/another_folder/third_layer/another_hello.txt
 display_server_data
 
 print_header "TEST 8: multiple clients writing the same content to different filenames"
 for i in {1..10}; do
     run_cmd_and_save "$OUT/test_thread_$i.txt" ./rfs WRITE --local file_112kb.txt --remote thread_test_$i.txt &
 done
-sleep 5 # wait for all threads to finish
+echo ""
+echo "wait for threads to finish"
+echo "sleep 3"
+sleep 3
 display_server_data
 
 

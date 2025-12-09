@@ -129,8 +129,7 @@ request_t* deSerializeRequest(const char* buffer) {
         } else if (i == 2) {  // token = remote_path
             path = strdup(token);
         } else {
-            // something went wrong there shouldn't be a 4th token
-            printf("\tdeSerializeRequest() %dth token = %s\n", i, token);
+            break;
         }
 
         // go to the next token
@@ -140,7 +139,7 @@ request_t* deSerializeRequest(const char* buffer) {
     free(buffer_cpy);
 
     if (i < 3) {
-        printf("WARNING: client request string doesn't follow format 'command,data_len,remote_path'\n");
+        fprintf(stderr, "WARNING: client request string doesn't follow format 'command,data_len,remote_path'\n");
         return NULL;
     } else {
         return createRequestFromParts(type, path, data_len);

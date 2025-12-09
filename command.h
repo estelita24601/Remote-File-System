@@ -33,7 +33,7 @@ typedef struct command {
 command_type strToCommandType(const char* str);
 
 /**
- * @brief //todo
+ * @brief format the given path so its in the correct folder
  *
  * Examples:
  * "foo.txt" -> "data/foo.txt"

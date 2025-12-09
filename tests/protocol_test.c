@@ -17,6 +17,7 @@
 #include <unistd.h>
 
 #include "../config.h"
+#include "../utils.h"
 #include "test_utils.h"
 
 bool responseEquals(response_t* a, response_t* b) {
@@ -100,7 +101,7 @@ void testResponseStruct(response_t* original_obj, const char* expected_str) {
     if (!responseEquals(original_obj, actual_obj)) {
         printf("FAIL: de-serialize to a response_t\n");
         char* actual = serializeResponse(actual_obj);
-        char* expected = serializeRequest(original_obj);
+        char* expected = serializeResponse(original_obj);
         PRINT_COMPARISON(expected, actual);
         free(actual);
         free(expected);
@@ -140,14 +141,14 @@ void requestTest() {
     command_t* cmd1 = createCommandStruct(GET, "localhost", "local1.txt", "remote1.txt");
     request_t* request1 = createRequest(cmd1);
     assert(request1 != NULL);
-    testRequestStruct(request1, "GET,0,remote1.txt");
+    testRequestStruct(request1, "GET,0,data/remote1.txt");
     freeCommandStruct(cmd1);
     freeRequest(request1);
 
     PRINT_SUBHEADER("createRequestFromParts() for a GET request");
-    request_t* request2 = createRequestFromParts(GET, "remote2.txt", 0);
+    request_t* request2 = createRequestFromParts(GET, "data/remote2.txt", 0);
     assert(request2 != NULL);
-    testRequestStruct(request2, "GET,0,remote2.txt");
+    testRequestStruct(request2, "GET,0,data/remote2.txt");
     freeRequest(request2);
 }
 
