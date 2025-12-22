@@ -160,6 +160,10 @@ bool createNestedDirectories(const char* full_path) {
     // one or more nested folders don't exist so work our way up
     char curr_directory[MAX_PATH_LEN] = "";
     char* token = strtok(directory_only, "/");
+    // mkdir(data)
+    // mdkir(data/subfolder)
+    // mkdir(data/subfolder/sub)
+    // so forth
     while (token != NULL) {
         // append to current directory
         if (strlen(curr_directory) == 0) {

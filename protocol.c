@@ -205,6 +205,7 @@ char* serializeResponse(response_t* res) {
         return NULL;
     }
 
+    // status,data_len,message
     sprintf(resString, responseFormat, res->status, res->data_len, res->message);
 
     return resString;

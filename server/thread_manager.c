@@ -94,8 +94,6 @@ void* threadClientHandler(void* input) {
             logThread(id, "unlock", request->remote_path);
             break;
         case LS:
-            // todo (optional): handleListRequest function
-            // don't think this will require a lock because I'm just listing filenames for version history
             buildAndSendResponse(socket, false, 0, "optional command isn't implemented yet");
             break;
         default:

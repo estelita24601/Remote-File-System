@@ -48,7 +48,7 @@ bool saveCurrentVersion(const char* filepath) {
     // this is where current version will be saved
     char version_directory[MAX_PATH_LEN];
     strcpy(version_directory, directory_only);
-    strcat(version_directory, VERSION_SUBFOLDER); 
+    strcat(version_directory, VERSION_SUBFOLDER);
 
     // create the full path where we'll be saving the current version
     char* version_filename = makeVersionName(basename_only);
@@ -75,6 +75,7 @@ bool saveCurrentVersion(const char* filepath) {
 void handleWriteRequest(request_t* write_request, const int socket_descriptor) {
     // just in case there are multiple layers of nested folders
     createNestedDirectories(write_request->remote_path);
+    //folder/subfolder/myfile.txt
 
     // if this file already exists save this version of it
     bool status = saveCurrentVersion(write_request->remote_path);
@@ -82,7 +83,6 @@ void handleWriteRequest(request_t* write_request, const int socket_descriptor) {
     // try to get contents from client and save it to the file
     status = status && receiveFileContents(write_request->remote_path, write_request->data_len, socket_descriptor);
 
-    // todo: if time figure out how to get better or more descriptive error message for the response
     buildAndSendResponse(socket_descriptor, status, 0, "");
 }
 
