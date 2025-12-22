@@ -74,7 +74,7 @@ bool sendFileContents(const char* source_file, const long file_size, const int s
         size_t buffer_fill = fread(buffer, 1, MAX_BUFF_SIZE, file);
 
         // send to the socket
-        int status = send(socket_descriptor, buffer, buffer_fill, 0);
+        int status = sendALL(socket_descriptor, buffer, buffer_fill);
         if (status < 0) {
             fprintf(stderr, "ERROR: unable to send file contents\n");
             fclose(file);
@@ -235,3 +235,27 @@ bool receiveFileContents(const char* destination_path, const long file_size, con
     fclose(file);
     return success;
 }
+
+// todo: TEST ME
+bool sendALL(const int socket_descriptor, const char* data, const long num_bytes) {
+    long total_sent = 0;
+
+    const char* buffer = &data[0];
+
+    while (total_sent < num_bytes) {
+        // try to send data
+        long num_sent = send(socket_descriptor, buffer, num_bytes - total_sent, 0);
+        if (num_sent < 0) {
+            fprintf(stderr, "ERROR: sendALL() unable to send all %ld bytes\n", num_bytes);
+            return false;
+        }
+
+        // shift buffer over
+        total_sent += num_sent;
+        buffer = &data[total_sent];
+    }
+
+    return true;
+}
+
+bool receiveALL(const int socket_descriptor, const char* buffer, const long expected_bytes) { return false; }

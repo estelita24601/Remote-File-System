@@ -112,4 +112,26 @@ bool createNestedDirectories(const char* full_path);
  */
 bool receiveFileContents(const char* destination_path, const long file_size, const int socket_descriptor);
 
+/**
+ * @brief
+ *
+ * @param socket_descriptor int - handle for the socket we're sending the data over
+ * @param data char* - the data we want to send
+ * @param num_bytes long - how many bytes of data we should send
+ * @return true - on success
+ * @return false - on failure
+ */
+bool sendALL(const int socket_descriptor, const char* data, const long num_bytes);
+
+/**
+ * @brief
+ *
+ * @param socket_descriptor int - handle for the socket we're receiving data from
+ * @param buffer char* - where to put the data received
+ * @param expected_bytes long - how many bytes of data we expect to receive
+ * @return true - on success
+ * @return false - on failure
+ */
+bool receiveALL(const int socket_descriptor, const char* buffer, const long expected_bytes);
+
 #endif
