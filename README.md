@@ -1,16 +1,10 @@
-# Practicum II - CS 5600
-
-**Fall 2025**
-
-**Estelita Chen**
-
 ## Build Commands
 
-**`make` or `make all`** - Build client and server  
-**`make client`** - Build client only (`client/rfs`)  
-**`make server`** - Build server only (`server/rfs_server`)  
-**`make test_args`** - Build argument parser unit tests (`tests/test_args`)  
-**`make test_protocol`** - Build protocol unit tests (`tests/test_protocol`)  
+**`make` or `make all`** - Build client and server
+**`make client`** - Build client only (`client/rfs`)
+**`make server`** - Build server only (`server/rfs_server`)
+**`make test_args`** - Build argument parser unit tests (`tests/test_args`)
+**`make test_protocol`** - Build protocol unit tests (`tests/test_protocol`)
 **`make clean`** - Remove all executables
 
 ## Usage
@@ -74,7 +68,7 @@ python3 arg_parse_test.py  # Test argument parsing for client
 ./test_protocol            # Test protocol for client/server communication
 ```
 
-# 
+#
 
 ## References
 
