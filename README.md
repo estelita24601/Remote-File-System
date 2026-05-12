@@ -1,10 +1,15 @@
 ## Build Commands
 
 **`make` or `make all`** - Build client and server
+
 **`make client`** - Build client only (`client/rfs`)
+
 **`make server`** - Build server only (`server/rfs_server`)
+
 **`make test_args`** - Build argument parser unit tests (`tests/test_args`)
+
 **`make test_protocol`** - Build protocol unit tests (`tests/test_protocol`)
+
 **`make clean`** - Remove all executables
 
 ## Usage
